@@ -137,105 +137,13 @@ export default function ProjectsSection() {
             className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
           >
             <AnimatePresence>
-              {filteredProjects.map((project) => {
-                const pId = project._id || project.id || project.title;
-                const projectTags = project.tags || project.technologies || [];
-                const githubLink = project.githubUrl || 'https://github.com/Krishna8208863439';
-                const linkedinLink = project.linkedinUrl || 'https://linkedin.com/in/krishna-devadkar';
-
-                return (
-                  <motion.div
-                    key={pId}
-                    layout
-                    initial={{ opacity: 0, y: 30 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, scale: 0.9 }}
-                    transition={{ duration: 0.4 }}
-                    className="group relative glass-card rounded-2xl overflow-hidden border border-slate-800 hover:border-blue-500/40 transition-all duration-300 flex flex-col justify-between"
-                  >
-                    <div>
-                      {/* Project Image */}
-                      <div className="relative h-48 w-full overflow-hidden bg-slate-900">
-                        <Image
-                          src={project.image}
-                          alt={project.title}
-                          fill
-                          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                          className="object-cover object-center group-hover:scale-105 transition-transform duration-500"
-                        />
-                        <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-80" />
-                        <span className="absolute top-3 right-3 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-blue-600/40 border border-blue-400/40 text-blue-300 backdrop-blur-md">
-                          {project.category}
-                        </span>
-                      </div>
-
-                      {/* Content */}
-                      <div className="p-6">
-                        <h3 className="text-xl font-bold text-white group-hover:text-blue-400 transition-colors">
-                          {project.title}
-                        </h3>
-                        <p className="mt-2 text-slate-400 text-sm line-clamp-3 leading-relaxed">
-                          {project.description}
-                        </p>
-
-                        {/* Tech Tag Pills */}
-                        <div className="mt-4 flex flex-wrap gap-1.5">
-                          {projectTags.map((tech) => (
-                            <span
-                              key={tech}
-                              className="px-2.5 py-1 rounded-md text-[11px] font-medium bg-slate-800/80 text-slate-300 border border-slate-700/50"
-                            >
-                              {tech}
-                            </span>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Card Footer Links */}
-                    <div className="p-6 pt-0 flex items-center justify-between border-t border-slate-800/60 mt-4">
-                      <button
-                        onClick={() => setSelectedProject(project)}
-                        className="text-xs font-semibold text-blue-400 hover:text-blue-300 transition-colors"
-                      >
-                        View Details
-                      </button>
-
-                      <div className="flex items-center space-x-2">
-                        <a
-                          href={githubLink}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="p-2 rounded-lg bg-slate-800/80 hover:bg-slate-700 text-slate-300 hover:text-white transition-colors"
-                          title="GitHub Repository"
-                        >
-                          <FaGithub className="w-4 h-4" />
-                        </a>
-                        <a
-                          href={linkedinLink}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="p-2 rounded-lg bg-blue-600/10 hover:bg-blue-600/20 text-blue-400 hover:text-blue-300 transition-colors"
-                          title="LinkedIn Profile"
-                        >
-                          <FaLinkedin className="w-4 h-4" />
-                        </a>
-                        {project.liveUrl && (
-                          <a
-                            href={project.liveUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="p-2 rounded-lg bg-blue-600/20 hover:bg-blue-600/30 text-blue-400 border border-blue-500/30 transition-colors"
-                            title="Live Demo"
-                          >
-                            <ExternalLink className="w-4 h-4" />
-                          </a>
-                        )}
-                      </div>
-                    </div>
-                  </motion.div>
-                );
-              })}
+              {filteredProjects.map((project) => (
+                <ProjectCard
+                  key={project._id || project.id || project.title}
+                  project={project}
+                  onSelect={(p) => setSelectedProject(p)}
+                />
+              ))}
             </AnimatePresence>
           </motion.div>
         )}
@@ -299,5 +207,114 @@ export default function ProjectsSection() {
         </div>
       )}
     </section>
+  );
+}
+
+function ProjectCard({
+  project,
+  onSelect,
+}: {
+  project: ProjectItem;
+  onSelect: (p: ProjectItem) => void;
+}) {
+  const projectTags = project.tags || project.technologies || [];
+  const githubLink = project.githubUrl || 'https://github.com/Krishna8208863439';
+  const linkedinLink = project.linkedinUrl || 'https://linkedin.com/in/krishna-devadkar';
+  const FALLBACK_IMAGE = 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=800&q=80';
+
+  const [imgSrc, setImgSrc] = useState(project.image || FALLBACK_IMAGE);
+
+  return (
+    <motion.div
+      layout
+      initial={{ opacity: 0, y: 30 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, scale: 0.9 }}
+      transition={{ duration: 0.4 }}
+      className="group relative glass-card rounded-2xl overflow-hidden border border-slate-800 hover:border-blue-500/40 transition-all duration-300 flex flex-col justify-between"
+    >
+      <div>
+        {/* Project Image */}
+        <div className="relative h-48 w-full overflow-hidden bg-slate-900">
+          <Image
+            src={imgSrc}
+            alt={project.title}
+            fill
+            unoptimized={imgSrc.startsWith('http')}
+            onError={() => setImgSrc(FALLBACK_IMAGE)}
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+            className="object-cover object-center group-hover:scale-105 transition-transform duration-500"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-80" />
+          <span className="absolute top-3 right-3 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-blue-600/40 border border-blue-400/40 text-blue-300 backdrop-blur-md">
+            {project.category}
+          </span>
+        </div>
+
+        {/* Content */}
+        <div className="p-6">
+          <h3 className="text-xl font-bold text-white group-hover:text-blue-400 transition-colors">
+            {project.title}
+          </h3>
+          <p className="mt-2 text-slate-400 text-sm line-clamp-3 leading-relaxed">
+            {project.description}
+          </p>
+
+          {/* Tech Tag Pills */}
+          <div className="mt-4 flex flex-wrap gap-1.5">
+            {projectTags.map((tech) => (
+              <span
+                key={tech}
+                className="px-2.5 py-1 rounded-md text-[11px] font-medium bg-slate-800/80 text-slate-300 border border-slate-700/50"
+              >
+                {tech}
+              </span>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Card Footer Links */}
+      <div className="p-6 pt-0 flex items-center justify-between border-t border-slate-800/60 mt-4">
+        <button
+          onClick={() => onSelect(project)}
+          className="text-xs font-semibold text-blue-400 hover:text-blue-300 transition-colors"
+        >
+          View Details
+        </button>
+
+        <div className="flex items-center space-x-2">
+          <a
+            href={githubLink}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="p-2 rounded-lg bg-slate-800/80 hover:bg-slate-700 text-slate-300 hover:text-white transition-colors"
+            title="GitHub Repository"
+          >
+            <FaGithub className="w-4 h-4" />
+          </a>
+          <a
+            href={linkedinLink}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="p-2 rounded-lg bg-blue-600/10 hover:bg-blue-600/20 text-blue-400 hover:text-blue-300 transition-colors"
+            title="LinkedIn Profile"
+          >
+            <FaLinkedin className="w-4 h-4" />
+          </a>
+          {project.liveUrl && (
+            <a
+              href={project.liveUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="p-2 rounded-lg bg-blue-600/20 hover:bg-blue-600/30 text-blue-400 border border-blue-500/30 transition-colors"
+              title="Live Demo"
+            >
+              <ExternalLink className="w-4 h-4" />
+            </a>
+          )}
+        </div>
+      </div>
+    </motion.div>
   );
 }

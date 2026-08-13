@@ -204,7 +204,7 @@ export const PROJECTS_DATA: Project[] = [
     longDescription: 'Autonomous multi-agent system coordinating specialized AI subagents with tool execution, browser automation, web search, and code synthesis.',
     category: 'AI',
     technologies: ['Python', 'LangChain', 'CrewAI', 'FastAPI', 'React', 'Next.js'],
-    image: 'https://images.unsplash.com/photo-1677442136019-21780efad99a?auto=format&fit=crop&w=800&q=80',
+    image: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=800&q=80',
     githubUrl: 'https://github.com/Krishna8208863439',
     liveUrl: 'https://github.com/Krishna8208863439',
     featured: true,
