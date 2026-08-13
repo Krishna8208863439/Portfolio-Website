@@ -26,7 +26,8 @@ export default function HeroSection() {
 
   // Fetch status badge and dynamic project count from DB
   useEffect(() => {
-    fetch('/api/status')
+    const API_URL = process.env.NEXT_PUBLIC_API_URL || '';
+    fetch(`${API_URL}/api/status`)
       .then((res) => res.json())
       .then((data) => {
         if (typeof data.availableForHire === 'boolean') {
@@ -35,11 +36,12 @@ export default function HeroSection() {
       })
       .catch(() => setAvailableForHire(true));
 
-    fetch('/api/projects')
+    fetch(`${API_URL}/api/projects`)
       .then((res) => res.json())
       .then((data) => {
-        if (Array.isArray(data)) {
-          setProjectCount(data.length);
+        const list = Array.isArray(data) ? data : (data.projects || []);
+        if (list.length > 0) {
+          setProjectCount(list.length);
         }
       })
       .catch(() => setProjectCount(3));

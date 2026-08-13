@@ -1,6 +1,9 @@
 import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
+  // Static export for PythonAnywhere free plan hosting
+  output: 'export',
+  trailingSlash: true,
   devIndicators: false,
   eslint: {
     ignoreDuringBuilds: true,

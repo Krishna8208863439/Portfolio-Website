@@ -46,7 +46,8 @@ export default function ContactSection() {
     setErrorMessage('');
 
     try {
-      const response = await fetch('/api/contact', {
+      const API_URL = process.env.NEXT_PUBLIC_API_URL || '';
+      const response = await fetch(`${API_URL}/api/contact`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData),

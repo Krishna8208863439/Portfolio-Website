@@ -31,7 +31,8 @@ export default function WelcomeModal() {
   const handleVisitorAction = async (status: 'identified' | 'skipped') => {
     setSubmitting(true);
     try {
-      await fetch('/api/visitors', {
+      const API_URL = process.env.NEXT_PUBLIC_API_URL || '';
+      await fetch(`${API_URL}/api/visitors`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

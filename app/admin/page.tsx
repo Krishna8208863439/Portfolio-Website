@@ -93,24 +93,22 @@ export default function AdminPage() {
     setLoadingData(true);
     try {
       const headers = { Authorization: `Bearer ${token}` };
+      const API_URL = process.env.NEXT_PUBLIC_API_URL || '';
 
-      const [statsRes, roleRes, visitorsRes, projectsRes, statusRes, messagesRes] = await Promise.all([
-        fetch('/api/admin/stats', { headers }),
-        fetch('/api/admin/role-distribution', { headers }),
-        fetch(`/api/admin/visitors?page=${page}&limit=20`, { headers }),
-        fetch('/api/projects'),
-        fetch('/api/status'),
-        fetch('/api/admin/messages', { headers }),
+      const [statsRes, roleRes, projectsRes, statusRes, messagesRes] = await Promise.all([
+        fetch(`${API_URL}/api/admin/stats`, { headers }),
+        fetch(`${API_URL}/api/admin/role-distribution`, { headers }),
+        fetch(`${API_URL}/api/projects`),
+        fetch(`${API_URL}/api/status`),
+        fetch(`${API_URL}/api/admin/messages`, { headers }),
       ]);
 
       if (statsRes.ok) setStats(await statsRes.json());
       if (roleRes.ok) setRoleData(await roleRes.json());
-      if (visitorsRes.ok) {
-        const vData = await visitorsRes.json();
-        setVisitors(vData.visitors || []);
-        setTotalPages(vData.totalPages || 1);
+      if (projectsRes.ok) {
+        const pData = await projectsRes.json();
+        setProjects(Array.isArray(pData) ? pData : (pData.projects || []));
       }
-      if (projectsRes.ok) setProjects(await projectsRes.json());
       if (statusRes.ok) {
         const sData = await statusRes.json();
         setAvailableForHire(sData.availableForHire);
@@ -128,8 +126,9 @@ export default function AdminPage() {
 
   const handleDeleteMessage = async (id: string) => {
     if (!confirm('Delete this message?')) return;
+    const API_URL = process.env.NEXT_PUBLIC_API_URL || '';
     try {
-      await fetch(`/api/admin/messages?id=${id}`, {
+      await fetch(`${API_URL}/api/admin/messages?id=${id}`, {
         method: 'DELETE',
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -148,8 +147,9 @@ export default function AdminPage() {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoginError('');
+    const API_URL = process.env.NEXT_PUBLIC_API_URL || '';
     try {
-      const res = await fetch('/api/admin/login', {
+      const res = await fetch(`${API_URL}/api/admin/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
@@ -176,8 +176,9 @@ export default function AdminPage() {
   const handleToggleStatus = async () => {
     const nextStatus = !availableForHire;
     setAvailableForHire(nextStatus);
+    const API_URL = process.env.NEXT_PUBLIC_API_URL || '';
     try {
-      await fetch('/api/status', {
+      await fetch(`${API_URL}/api/status`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -192,8 +193,9 @@ export default function AdminPage() {
 
   const handleAddProject = async (e: React.FormEvent) => {
     e.preventDefault();
+    const API_URL = process.env.NEXT_PUBLIC_API_URL || '';
     try {
-      const res = await fetch('/api/projects', {
+      const res = await fetch(`${API_URL}/api/projects`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

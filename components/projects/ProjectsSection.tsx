@@ -40,11 +40,13 @@ export default function ProjectsSection() {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    fetch('/api/projects')
+    const API_URL = process.env.NEXT_PUBLIC_API_URL || '';
+    fetch(`${API_URL}/api/projects`)
       .then((res) => res.json())
       .then((data) => {
-        if (Array.isArray(data) && data.length > 0) {
-          setProjects(data);
+        const list = Array.isArray(data) ? data : (data.projects || []);
+        if (list.length > 0) {
+          setProjects(list);
         }
       })
       .catch((err) => console.error('Failed to load projects:', err));
