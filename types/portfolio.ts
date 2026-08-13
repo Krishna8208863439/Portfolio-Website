@@ -22,15 +22,16 @@ export interface Skill {
 export interface Project {
   id: string;
   title: string;
-  subtitle: string;
+  subtitle?: string;
   description: string;
-  longDescription: string;
+  longDescription?: string;
   category: 'Web' | 'AI' | 'Mobile' | 'Full Stack' | 'Machine Learning';
   technologies: string[];
-  features: string[];
+  features?: string[];
   image: string;
   githubUrl: string;
   liveUrl: string;
+  linkedinUrl?: string;
   featured?: boolean;
 }
 
@@ -68,7 +69,7 @@ export interface CertificateItem {
   credentialUrl?: string;
   image: string;
   skills: string[];
-  type: 'Certification' | 'Hackathon' | 'Award' | 'Research';
+  type: 'Certification' | 'Hackathon' | 'Award' | 'Research' | 'Internship';
 }
 
 export interface ServiceItem {

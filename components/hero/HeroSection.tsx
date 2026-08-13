@@ -21,6 +21,29 @@ export default function HeroSection() {
   const [displayedText, setDisplayedText] = useState('');
   const [isDeleting, setIsDeleting] = useState(false);
   const [resumeOpen, setResumeOpen] = useState(false);
+  const [availableForHire, setAvailableForHire] = useState<boolean>(true);
+  const [projectCount, setProjectCount] = useState<number>(3);
+
+  // Fetch status badge and dynamic project count from DB
+  useEffect(() => {
+    fetch('/api/status')
+      .then((res) => res.json())
+      .then((data) => {
+        if (typeof data.availableForHire === 'boolean') {
+          setAvailableForHire(data.availableForHire);
+        }
+      })
+      .catch(() => setAvailableForHire(true));
+
+    fetch('/api/projects')
+      .then((res) => res.json())
+      .then((data) => {
+        if (Array.isArray(data)) {
+          setProjectCount(data.length);
+        }
+      })
+      .catch(() => setProjectCount(3));
+  }, []);
 
   // Typing animation effect
   useEffect(() => {
@@ -29,7 +52,7 @@ export default function HeroSection() {
     let typingSpeed = isDeleting ? 40 : 80;
 
     if (!isDeleting && displayedText === targetText) {
-      typingSpeed = 2000; // Pause at full text
+      typingSpeed = 2000;
       const timeout = setTimeout(() => setIsDeleting(true), typingSpeed);
       return () => clearTimeout(timeout);
     } else if (isDeleting && displayedText === '') {
@@ -74,10 +97,12 @@ export default function HeroSection() {
             transition={{ duration: 0.8, ease: 'easeOut' }}
             className="lg:col-span-7 flex flex-col items-center lg:items-start text-center lg:text-left space-y-6"
           >
-            {/* Greeting Badge */}
+            {/* Greeting Badge with Dynamic Status */}
             <div className="inline-flex items-center space-x-2 px-3.5 py-1.5 rounded-full glass-card border border-blue-500/30 text-blue-400 text-xs sm:text-sm font-medium shadow-inner">
               <Sparkles className="w-4 h-4 text-cyan-400 animate-spin" style={{ animationDuration: '4s' }} />
-              <span>Hi 👋 Welcome to my portfolio</span>
+              <span>
+                {availableForHire ? 'Open to opportunities 👋' : 'Hi 👋 Welcome to my portfolio'}
+              </span>
             </div>
 
             {/* Main Title */}
@@ -103,20 +128,21 @@ export default function HeroSection() {
 
             {/* CTA Buttons */}
             <div className="pt-4 flex flex-wrap items-center justify-center lg:justify-start gap-4 w-full sm:w-auto">
-              <button
-                onClick={() => setResumeOpen(true)}
+              <a
+                href="/api/resume"
+                download="Final_Resume.pdf"
                 className="w-full sm:w-auto px-6 py-3.5 rounded-xl bg-gradient-to-r from-blue-600 via-purple-600 to-cyan-500 text-white font-semibold text-sm hover:shadow-lg hover:shadow-blue-500/30 transition-all duration-300 flex items-center justify-center gap-2 group"
               >
                 <FileText className="w-4 h-4 group-hover:scale-110 transition-transform" />
                 <span>Download Resume</span>
-              </button>
+              </a>
 
               <a
                 href="#projects"
                 className="w-full sm:w-auto px-6 py-3.5 rounded-xl glass-card text-white hover:bg-slate-800/80 font-semibold text-sm border border-slate-700/60 transition-all duration-300 flex items-center justify-center gap-2 group"
               >
                 <FolderDot className="w-4 h-4 text-purple-400 group-hover:scale-110 transition-transform" />
-                <span>View Projects</span>
+                <span>View Projects ({projectCount})</span>
               </a>
 
               <a
@@ -135,8 +161,6 @@ export default function HeroSection() {
                 {[
                   { icon: FaGithub, href: PERSONAL_INFO.github, label: 'GitHub' },
                   { icon: FaLinkedin, href: PERSONAL_INFO.linkedin, label: 'LinkedIn' },
-                  { icon: Mail, href: `mailto:${PERSONAL_INFO.email}`, label: 'Email' },
-                  { icon: FaInstagram, href: PERSONAL_INFO.instagram, label: 'Instagram' },
                 ].map((social) => {
                   const Icon = social.icon;
                   return (
@@ -156,7 +180,7 @@ export default function HeroSection() {
             </div>
           </motion.div>
 
-          {/* Right Column: Avatar Photo with Animated Frame */}
+          {/* Right Column: Avatar Photo with Overlay Stat Badge */}
           <motion.div
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -172,27 +196,27 @@ export default function HeroSection() {
               <div className="relative w-full h-full rounded-full p-2.5 glass-panel overflow-hidden border-2 border-blue-500/40 shadow-2xl shadow-blue-500/20">
                 <div className="relative w-full h-full rounded-full overflow-hidden bg-slate-900">
                   <Image
-                    src="/images/profile.png"
+                    src="/images/user_profile.png"
                     alt={PERSONAL_INFO.name}
                     fill
                     sizes="(max-width: 768px) 256px, 384px"
                     priority
-                    className="object-cover object-center scale-105 hover:scale-110 transition-transform duration-700"
+                    className="object-cover object-top scale-105 hover:scale-110 transition-transform duration-700"
                   />
                 </div>
               </div>
 
-              {/* Floating Badge 1 */}
+              {/* Floating Badge 1: Dynamic Status */}
               <motion.div
                 animate={{ y: [-8, 8, -8] }}
                 transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
                 className="absolute -top-4 -right-4 px-4 py-2 rounded-2xl glass-panel border border-blue-500/40 shadow-xl flex items-center space-x-2 text-xs font-semibold text-white"
               >
-                <div className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping" />
-                <span>Available for Hire</span>
+                <div className={`w-2.5 h-2.5 rounded-full ${availableForHire ? 'bg-emerald-400 animate-ping' : 'bg-amber-400'}`} />
+                <span>{availableForHire ? 'Open to Opportunities' : 'Currently Employed'}</span>
               </motion.div>
 
-              {/* Floating Badge 2 */}
+              {/* Floating Badge 2: Computed Projects Count */}
               <motion.div
                 animate={{ y: [8, -8, 8] }}
                 transition={{ duration: 4.5, repeat: Infinity, ease: 'easeInOut' }}
@@ -200,8 +224,8 @@ export default function HeroSection() {
               >
                 <Zap className="w-4 h-4 text-cyan-400" />
                 <div>
-                  <span className="block text-[10px] text-slate-400">Specialization</span>
-                  <span className="text-purple-300">Next.js & AI Eng</span>
+                  <span className="block text-[10px] text-slate-400">Live Projects</span>
+                  <span className="text-purple-300 font-bold">{projectCount}+ Projects Done</span>
                 </div>
               </motion.div>
             </div>

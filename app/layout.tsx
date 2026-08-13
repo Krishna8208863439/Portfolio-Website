@@ -46,7 +46,7 @@ export const metadata: Metadata = {
     siteName: 'Krishna Devadkar Portfolio',
     images: [
       {
-        url: '/images/profile.png',
+        url: '/images/user_profile.png',
         width: 1200,
         height: 630,
         alt: 'Krishna Devadkar Portfolio',
@@ -58,7 +58,7 @@ export const metadata: Metadata = {
     title: 'Krishna Devadkar | Full Stack & AI Engineer',
     description:
       'Crafting production-ready web apps and generative AI systems with Next.js, React 19, and Python.',
-    images: ['/images/profile.png'],
+    images: ['/images/user_profile.png'],
     creator: '@krishna_dev',
   },
   robots: {
@@ -83,7 +83,7 @@ export default function RootLayout({
       name: 'TechCorp Innovations',
     },
     sameAs: [
-      'https://github.com/krishna-devadkar',
+      'https://github.com/Krishna8208863439',
       'https://linkedin.com/in/krishna-devadkar',
       'https://x.com/krishna_dev',
     ],

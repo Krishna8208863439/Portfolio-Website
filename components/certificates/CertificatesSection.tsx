@@ -10,7 +10,7 @@ export default function CertificatesSection() {
   const [selectedCert, setSelectedCert] = useState<CertificateItem | null>(null);
   const [activeFilter, setActiveFilter] = useState<string>('All');
 
-  const filters = ['All', 'Certification', 'Hackathon', 'Award'] as const;
+  const filters = ['All', 'Certification', 'Hackathon', 'Internship'] as const;
 
   const filteredCerts = CERTIFICATES_DATA.filter((cert) =>
     activeFilter === 'All' ? true : cert.type === activeFilter

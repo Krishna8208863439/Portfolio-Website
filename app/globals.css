@@ -154,3 +154,92 @@ h1, h2, h3, h4, h5, h6 {
   vertical-align: middle;
   animation: blink 0.8s infinite;
 }
+
+/* Light mode overrides to ensure high contrast and 100% data visibility */
+.light {
+  color-scheme: light;
+}
+
+.light body {
+  background-color: #f8fafc;
+  color: #0f172a;
+}
+
+/* Light mode text visibility rules */
+.light .text-white {
+  color: #0f172a;
+}
+
+/* Retain white text for solid gradient buttons, badges, and primary action buttons */
+.light button.bg-gradient-to-r,
+.light button.bg-gradient-to-tr,
+.light button.bg-blue-600,
+.light button.bg-purple-600,
+.light a.bg-gradient-to-r,
+.light a.bg-gradient-to-tr,
+.light a.bg-blue-600,
+.light a.bg-purple-600,
+.light .bg-gradient-to-r .text-white,
+.light .bg-gradient-to-tr .text-white,
+.light .bg-blue-600 .text-white,
+.light .bg-blue-500 .text-white,
+.light .bg-purple-600 .text-white,
+.light [class*="from-blue-600"] .text-white,
+.light [class*="from-blue-600"] span,
+.light [class*="from-purple-600"] .text-white,
+.light [class*="from-purple-600"] span {
+  color: #ffffff !important;
+}
+
+.light .text-slate-100,
+.light .text-slate-200,
+.light .text-slate-300 {
+  color: #1e293b;
+}
+
+.light .text-slate-400,
+.light .text-slate-500 {
+  color: #475569;
+}
+
+/* Light mode backgrounds for cards and containers */
+.light .bg-slate-900,
+.light .bg-slate-950,
+.light .bg-slate-900\/50,
+.light .bg-slate-900\/80,
+.light .bg-slate-900\/90 {
+  background-color: #ffffff;
+  border-color: #e2e8f0;
+}
+
+.light .bg-slate-800,
+.light .bg-slate-800\/80,
+.light .bg-slate-800\/50,
+.light .bg-slate-800\/60 {
+  background-color: #f1f5f9;
+  border-color: #cbd5e1;
+}
+
+/* Light mode borders */
+.light .border-slate-800,
+.light .border-slate-700,
+.light .border-slate-700\/60,
+.light .border-slate-800\/80,
+.light .border-slate-700\/40 {
+  border-color: #cbd5e1;
+}
+
+/* Light mode inputs, textareas, selects */
+.light input,
+.light textarea,
+.light select {
+  background-color: #ffffff !important;
+  color: #0f172a !important;
+  border-color: #cbd5e1 !important;
+}
+
+.light input::placeholder,
+.light textarea::placeholder {
+  color: #94a3b8 !important;
+}
+

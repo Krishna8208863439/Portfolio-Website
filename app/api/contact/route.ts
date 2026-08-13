@@ -1,5 +1,8 @@
 import { NextResponse } from 'next/server';
 import nodemailer from 'nodemailer';
+import { connectToDatabase } from '@/lib/mongodb';
+import { ContactMessage } from '@/lib/models';
+import { addContactMessage } from '@/lib/contactStore';
 
 export async function POST(request: Request) {
   try {
@@ -22,54 +25,78 @@ export async function POST(request: Request) {
       );
     }
 
+    // Always store in memory store for local admin dashboard
+    addContactMessage({ name, email, phone, subject, message });
+
+    // Save copy to MongoDB if available
+    try {
+      const db = await connectToDatabase();
+      if (db) {
+        await ContactMessage.create({
+          name,
+          email,
+          phone,
+          subject,
+          message,
+        });
+      }
+    } catch (dbErr) {
+      console.warn('Could not save contact message to DB:', dbErr);
+    }
+
+    // SMTP Nodemailer configuration
     const smtpHost = process.env.SMTP_HOST;
-    const smtpPort = parseInt(process.env.SMTP_PORT || '587');
+    const smtpPort = parseInt(process.env.SMTP_PORT || '587', 10);
     const smtpUser = process.env.SMTP_USER;
     const smtpPass = process.env.SMTP_PASS;
 
-    if (smtpHost && smtpUser && smtpPass) {
-      // Real Nodemailer Dispatch
-      const transporter = nodemailer.createTransport({
-        host: smtpHost,
-        port: smtpPort,
-        secure: smtpPort === 465,
-        auth: {
-          user: smtpUser,
-          pass: smtpPass,
-        },
-      });
+    let emailSent = false;
 
-      const mailOptions = {
-        from: `"${name}" <${smtpUser}>`,
-        to: process.env.CONTACT_EMAIL || 'krishna.devadkar.dev@gmail.com',
-        replyTo: email,
-        subject: subject ? `Portfolio Inquiry: ${subject}` : `New Portfolio Inquiry from ${name}`,
-        html: `
-          <div style="font-family: Arial, sans-serif; padding: 20px; color: #333; max-width: 600px; border: 1px solid #eee; border-radius: 10px;">
-            <h2 style="color: #2563eb;">New Portfolio Contact Request</h2>
-            <p><strong>Name:</strong> ${name}</p>
-            <p><strong>Email:</strong> ${email}</p>
-            <p><strong>Phone:</strong> ${phone || 'N/A'}</p>
-            <p><strong>Subject:</strong> ${subject || 'N/A'}</p>
-            <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;" />
-            <h3 style="color: #1e293b;">Message:</h3>
-            <p style="white-space: pre-wrap; background: #f8fafc; padding: 15px; border-radius: 8px;">${message}</p>
-            <p style="font-size: 12px; color: #94a3b8; margin-top: 30px;">
-              Sent from Krishna Devadkar's Portfolio Website
-            </p>
-          </div>
-        `,
-      };
+    if (smtpHost && smtpUser && smtpPass && smtpPass !== 'app-password-here') {
+      try {
+        const transporter = nodemailer.createTransport({
+          host: smtpHost,
+          port: smtpPort,
+          secure: smtpPort === 465,
+          auth: {
+            user: smtpUser,
+            pass: smtpPass,
+          },
+        });
 
-      await transporter.sendMail(mailOptions);
-    } else {
-      // Fallback Dev Logging
-      console.log('--- [CONTACT FORM SUBMISSION LOGGED] ---');
+        const mailOptions = {
+          from: `"${name}" <${smtpUser}>`,
+          to: process.env.CONTACT_RECEIVER_EMAIL || 'krishnadevadkar@gmail.com',
+          replyTo: email,
+          subject: subject ? `Portfolio Inquiry: ${subject}` : `New Portfolio Inquiry from ${name}`,
+          html: `
+            <div style="font-family: Arial, sans-serif; padding: 20px; color: #333; max-width: 600px; border: 1px solid #eee; border-radius: 10px;">
+              <h2 style="color: #2563eb;">New Portfolio Contact Request</h2>
+              <p><strong>Name:</strong> ${name}</p>
+              <p><strong>Email:</strong> ${email}</p>
+              <p><strong>Phone:</strong> ${phone || 'N/A'}</p>
+              <p><strong>Subject:</strong> ${subject || 'N/A'}</p>
+              <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;" />
+              <h3 style="color: #1e293b;">Message:</h3>
+              <p style="white-space: pre-wrap; background: #f8fafc; padding: 15px; border-radius: 8px;">${message}</p>
+            </div>
+          `,
+        };
+
+        await transporter.sendMail(mailOptions);
+        emailSent = true;
+      } catch (mailErr) {
+        console.warn('SMTP Email delivery failed (logging submission instead):', mailErr);
+      }
+    }
+
+    if (!emailSent) {
+      console.log('--- [CONTACT FORM SUBMISSION RECEIVED] ---');
       console.log(`From: ${name} (${email})`);
       console.log(`Phone: ${phone || 'N/A'}`);
       console.log(`Subject: ${subject || 'N/A'}`);
       console.log(`Message: ${message}`);
-      console.log('----------------------------------------');
+      console.log('-------------------------------------------');
     }
 
     return NextResponse.json(

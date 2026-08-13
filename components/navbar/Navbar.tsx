@@ -68,7 +68,7 @@ export default function Navbar() {
             </div>
             <div className="flex flex-col">
               <span className="font-bold text-lg tracking-tight text-white flex items-center gap-1.5">
-                Krishna <span className="text-blue-400 font-mono">.dev</span>
+                Krishna
                 <Sparkles className="w-3.5 h-3.5 text-purple-400 animate-pulse" />
               </span>
               <span className="text-[10px] uppercase tracking-widest text-slate-400 font-medium">

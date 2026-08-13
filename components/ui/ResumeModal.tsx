@@ -55,8 +55,8 @@ export default function ResumeModal({ isOpen, onClose }: ResumeModalProps) {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="p-4 rounded-xl bg-slate-900/60 border border-slate-800">
                 <h5 className="font-medium text-white mb-1">Education</h5>
-                <p className="text-xs text-blue-400">B.Tech in CSE (AI & ML)</p>
-                <p className="text-xs text-slate-400">SJCEM | CGPA: 9.4 / 10</p>
+                <p className="text-xs text-blue-400">B.Tech in Computer Science & Engineering</p>
+                <p className="text-xs text-slate-400">Sanjay Ghodawat Institute | CGPA: 7.0 / 10</p>
               </div>
               <div className="p-4 rounded-xl bg-slate-900/60 border border-slate-800">
                 <h5 className="font-medium text-white mb-1">Latest Role</h5>
@@ -93,7 +93,8 @@ export default function ResumeModal({ isOpen, onClose }: ResumeModalProps) {
               <ExternalLink className="w-4 h-4" /> Contact Directly
             </a>
             <a
-              href="mailto:krishna.devadkar.dev@gmail.com?subject=Resume%20Request%20-%20Krishna%20Devadkar"
+              href="/api/resume"
+              download="Final_Resume.pdf"
               className="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-gradient-to-r from-blue-600 via-purple-600 to-cyan-500 text-white hover:opacity-95 transition-opacity font-semibold text-sm flex items-center justify-center gap-2 shadow-lg shadow-blue-500/25"
             >
               <Download className="w-4 h-4" /> Download PDF Resume

@@ -149,16 +149,6 @@ export default function ContactSection() {
                     <span className="text-sm font-semibold text-white">{PERSONAL_INFO.location}</span>
                   </div>
                 </div>
-
-                <div className="flex items-start space-x-4 p-3.5 rounded-2xl glass-card border border-slate-800">
-                  <div className="p-3 rounded-xl bg-amber-500/10 text-amber-400">
-                    <Clock className="w-5 h-5" />
-                  </div>
-                  <div>
-                    <span className="text-xs uppercase tracking-wider text-slate-400 font-mono block">Working Hours</span>
-                    <span className="text-sm font-semibold text-white">{PERSONAL_INFO.workingHours}</span>
-                  </div>
-                </div>
               </div>
 
               {/* Social Channels */}
@@ -170,8 +160,6 @@ export default function ContactSection() {
                   {[
                     { icon: FaGithub, href: PERSONAL_INFO.github, label: 'GitHub' },
                     { icon: FaLinkedin, href: PERSONAL_INFO.linkedin, label: 'LinkedIn' },
-                    { icon: FaTwitter, href: PERSONAL_INFO.twitter, label: 'Twitter' },
-                    { icon: FaInstagram, href: PERSONAL_INFO.instagram, label: 'Instagram' },
                   ].map((social) => {
                     const IconComp = social.icon;
                     return (
@@ -188,20 +176,6 @@ export default function ContactSection() {
                     );
                   })}
                 </div>
-              </div>
-            </div>
-
-            {/* Interactive Map Visual Preview Card */}
-            <div className="glass-panel rounded-3xl p-4 border border-slate-800 relative overflow-hidden h-44 flex flex-col justify-end bg-gradient-to-t from-slate-950 via-slate-900 to-slate-800/80">
-              <div className="absolute inset-0 bg-[radial-gradient(#38bdf815_1px,transparent_1px)] [background-size:16px_16px] pointer-events-none" />
-              <div className="relative z-10 flex items-center justify-between">
-                <div className="flex items-center space-x-2">
-                  <div className="w-3 h-3 rounded-full bg-emerald-400 animate-ping" />
-                  <span className="text-xs font-bold text-white font-mono">Mumbai Hub HQ</span>
-                </div>
-                <span className="text-[10px] text-slate-400 font-mono bg-slate-900 px-2 py-1 rounded-md border border-slate-800">
-                  LAT 19.0760° N, LON 72.8777° E
-                </span>
               </div>
             </div>
           </motion.div>
