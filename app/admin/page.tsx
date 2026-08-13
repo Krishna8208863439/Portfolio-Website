@@ -79,7 +79,7 @@ export default function AdminPage() {
 
   // Check saved token on mount
   useEffect(() => {
-    const savedToken = localStorage.getItem('admin_jwt_token');
+    const savedToken = typeof window !== 'undefined' ? localStorage.getItem('admin_jwt_token') : null;
     if (savedToken) {
       setToken(savedToken);
       setIsAuthenticated(true);
