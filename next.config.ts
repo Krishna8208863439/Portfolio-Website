@@ -1,9 +1,10 @@
 import type { NextConfig } from 'next';
+import path from 'path';
 
 const nextConfig: NextConfig = {
-  // Static export for PythonAnywhere free plan hosting
-  output: 'export',
-  trailingSlash: true,
+  outputFileTracingRoot: path.resolve(__dirname),
+  // Static export only if explicitly enabled (e.g. for static hostings)
+  ...(process.env.NEXT_EXPORT === 'true' ? { output: 'export', trailingSlash: true } : {}),
   devIndicators: false,
   eslint: {
     ignoreDuringBuilds: true,

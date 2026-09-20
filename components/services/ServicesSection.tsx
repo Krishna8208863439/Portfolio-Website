@@ -2,16 +2,12 @@
 
 import { motion } from 'framer-motion';
 import { SERVICES_DATA } from '@/lib/constants';
-import { Layout, Brain, Server, Cloud, CheckCircle2, ArrowRight, Sparkles } from 'lucide-react';
-import { FaFigma } from 'react-icons/fa';
+import { Layout, Brain, Server, CheckCircle2, ArrowRight, Sparkles } from 'lucide-react';
 
 const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
   Layout,
   Brain,
   Server,
-  Figma: FaFigma,
-  Cloud,
-  CheckCircle2,
 };
 
 export default function ServicesSection() {

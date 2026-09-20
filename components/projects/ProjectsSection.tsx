@@ -37,6 +37,7 @@ export default function ProjectsSection() {
   const [activeCategory, setActiveCategory] = useState<string>('All');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedProject, setSelectedProject] = useState<ProjectItem | null>(null);
+  const [visibleCount, setVisibleCount] = useState<number>(12);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -51,6 +52,11 @@ export default function ProjectsSection() {
       })
       .catch((err) => console.error('Failed to load projects:', err));
   }, []);
+
+  // Reset pagination when category or search changes
+  useEffect(() => {
+    setVisibleCount(12);
+  }, [activeCategory, searchQuery]);
 
   const filteredProjects = projects.filter((project) => {
     const pCat = project.category ? project.category.trim() : '';
@@ -71,6 +77,8 @@ export default function ProjectsSection() {
     return matchesCategory && matchesSearch;
   });
 
+  const displayedProjects = filteredProjects.slice(0, visibleCount);
+
   return (
     <section id="projects" className="py-24 relative overflow-hidden">
       {/* Background Glow */}
@@ -88,19 +96,19 @@ export default function ProjectsSection() {
             Featured <span className="gradient-text">Projects</span>
           </h2>
           <p className="mt-4 text-slate-400 text-base sm:text-lg">
-            A showcase of web applications, intelligent AI models, and cloud microservices I have built.
+            A comprehensive showcase of 100+ production web applications, intelligent AI models, and cloud microservices.
           </p>
         </div>
 
         {/* Filter Controls & Search */}
-        <div className="flex flex-col md:flex-row items-center justify-between gap-4 mb-12">
+        <div className="flex flex-col md:flex-row items-center justify-between gap-4 mb-8">
           {/* Category Tabs */}
-          <div className="flex flex-wrap justify-center gap-2">
+          <div className="flex overflow-x-auto no-scrollbar sm:flex-wrap gap-2 w-full md:w-auto pb-2 px-1">
             {categories.map((category) => (
               <button
                 key={category}
                 onClick={() => setActiveCategory(category)}
-                className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all duration-300 ${
+                className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold whitespace-nowrap shrink-0 transition-all duration-300 ${
                   activeCategory === category
                     ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg shadow-blue-500/25 border border-blue-400/30'
                     : 'glass-card text-slate-400 hover:text-white hover:bg-slate-800/80 border border-slate-800'
@@ -116,12 +124,28 @@ export default function ProjectsSection() {
             <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
             <input
               type="text"
-              placeholder="Search projects or tech..."
+              placeholder="Search 100 projects..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 rounded-xl glass-card text-sm text-white placeholder-slate-400 border border-slate-700/60 focus:outline-none focus:border-blue-500"
+              className="w-full pl-10 pr-4 py-2.5 rounded-xl glass-card text-sm text-white placeholder-slate-400 border border-slate-700/60 focus:outline-none focus:border-blue-500"
             />
           </div>
+        </div>
+
+        {/* Project Counter Subtitle */}
+        <div className="flex items-center justify-between text-xs font-medium text-slate-400 mb-6 px-1">
+          <span>
+            Showing <strong className="text-white">{displayedProjects.length}</strong> of{' '}
+            <strong className="text-white">{filteredProjects.length}</strong> projects
+          </span>
+          {visibleCount < filteredProjects.length && (
+            <button
+              onClick={() => setVisibleCount(filteredProjects.length)}
+              className="text-blue-400 hover:text-blue-300 transition-colors font-semibold"
+            >
+              Show all {filteredProjects.length} →
+            </button>
+          )}
         </div>
 
         {loading ? (
@@ -133,57 +157,78 @@ export default function ProjectsSection() {
             No projects match your filter.
           </div>
         ) : (
-          /* Projects Grid */
-          <motion.div
-            layout
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
-          >
-            <AnimatePresence>
-              {filteredProjects.map((project) => (
-                <ProjectCard
-                  key={project._id || project.id || project.title}
-                  project={project}
-                  onSelect={(p) => setSelectedProject(p)}
-                />
-              ))}
-            </AnimatePresence>
-          </motion.div>
+          <>
+            {/* Projects Grid */}
+            <motion.div
+              layout
+              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
+            >
+              <AnimatePresence>
+                {displayedProjects.map((project) => (
+                  <ProjectCard
+                    key={project._id || project.id || project.title}
+                    project={project}
+                    onSelect={(p) => setSelectedProject(p)}
+                  />
+                ))}
+              </AnimatePresence>
+            </motion.div>
+
+            {/* Load More & Show All Controls */}
+            {visibleCount < filteredProjects.length && (
+              <div className="mt-12 flex flex-col sm:flex-row items-center justify-center gap-4">
+                <button
+                  onClick={() => setVisibleCount((prev) => Math.min(prev + 12, filteredProjects.length))}
+                  className="w-full sm:w-auto px-6 py-3 rounded-xl bg-gradient-to-r from-blue-600 via-purple-600 to-cyan-500 text-white font-semibold text-sm hover:shadow-lg hover:shadow-blue-500/25 transition-all duration-300"
+                >
+                  Load More ({filteredProjects.length - visibleCount} more)
+                </button>
+                <button
+                  onClick={() => setVisibleCount(filteredProjects.length)}
+                  className="w-full sm:w-auto px-6 py-3 rounded-xl glass-card text-slate-300 hover:text-white hover:bg-slate-800/80 font-semibold text-sm border border-slate-700/60 transition-all duration-300"
+                >
+                  View All {filteredProjects.length} Projects
+                </button>
+              </div>
+            )}
+          </>
         )}
       </div>
 
       {/* Detail Modal */}
       {selectedProject && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-md">
-          <div className="relative w-full max-w-2xl bg-slate-900 border border-slate-800 rounded-2xl p-6 text-white shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/75 backdrop-blur-md">
+          <div className="relative w-full max-w-2xl bg-slate-900 border border-slate-800 rounded-2xl sm:rounded-3xl p-5 sm:p-7 text-white shadow-2xl space-y-4 max-h-[85vh] overflow-y-auto">
             <button
               onClick={() => setSelectedProject(null)}
-              className="absolute top-4 right-4 p-1.5 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800"
+              className="absolute top-4 right-4 p-2 text-slate-400 hover:text-white rounded-xl hover:bg-slate-800 transition-colors z-10"
+              aria-label="Close project modal"
             >
               <X className="w-5 h-5" />
             </button>
-            <h3 className="text-2xl font-bold">{selectedProject.title}</h3>
-            <p className="text-sm text-slate-300 leading-relaxed">
+            <h3 className="text-xl sm:text-2xl font-bold pr-8">{selectedProject.title}</h3>
+            <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
               {selectedProject.longDescription || selectedProject.description}
             </p>
 
             <div className="pt-2">
               <h4 className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Technologies Used</h4>
-              <div className="flex flex-wrap gap-2">
+              <div className="flex flex-wrap gap-1.5 sm:gap-2">
                 {(selectedProject.tags || selectedProject.technologies || []).map((t) => (
-                  <span key={t} className="px-3 py-1 bg-blue-600/20 border border-blue-500/30 text-blue-300 text-xs font-medium rounded-lg flex items-center gap-1">
+                  <span key={t} className="px-2.5 sm:px-3 py-1 bg-blue-600/20 border border-blue-500/30 text-blue-300 text-xs font-medium rounded-lg flex items-center gap-1">
                     <CheckCircle2 className="w-3 h-3" /> {t}
                   </span>
                 ))}
               </div>
             </div>
 
-            <div className="flex flex-wrap items-center gap-3 pt-4 border-t border-slate-800">
+            <div className="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-2.5 pt-4 border-t border-slate-800">
               {selectedProject.liveUrl && (
                 <a
                   href={selectedProject.liveUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="px-4 py-2.5 bg-blue-600 hover:bg-blue-500 text-white font-semibold text-xs rounded-xl flex items-center gap-2 shadow-lg shadow-blue-500/20"
+                  className="px-4 py-2.5 bg-blue-600 hover:bg-blue-500 text-white font-semibold text-xs rounded-xl flex items-center justify-center gap-2 shadow-lg shadow-blue-500/20"
                 >
                   <ExternalLink className="w-4 h-4" /> Live Preview
                 </a>
@@ -192,7 +237,7 @@ export default function ProjectsSection() {
                 href={selectedProject.githubUrl || 'https://github.com/Krishna8208863439'}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold text-xs rounded-xl flex items-center gap-2 border border-slate-700"
+                className="px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold text-xs rounded-xl flex items-center justify-center gap-2 border border-slate-700"
               >
                 <FaGithub className="w-4 h-4" /> GitHub Repository
               </a>
@@ -200,7 +245,7 @@ export default function ProjectsSection() {
                 href={selectedProject.linkedinUrl || 'https://linkedin.com/in/krishna-devadkar'}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="px-4 py-2.5 bg-blue-700/80 hover:bg-blue-600 text-white font-semibold text-xs rounded-xl flex items-center gap-2 border border-blue-600/50"
+                className="px-4 py-2.5 bg-blue-700/80 hover:bg-blue-600 text-white font-semibold text-xs rounded-xl flex items-center justify-center gap-2 border border-blue-600/50"
               >
                 <FaLinkedin className="w-4 h-4" /> LinkedIn Profile
               </a>

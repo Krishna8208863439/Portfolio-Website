@@ -57,7 +57,7 @@ export default function Footer() {
                 Navigation
               </h4>
               <ul className="space-y-2.5 text-xs text-slate-400 font-medium">
-                {NAV_ITEMS.slice(0, 3).map((item) => (
+                {NAV_ITEMS.slice(0, 5).map((item) => (
                   <li key={item.name}>
                     <a href={item.href} className="hover:text-blue-400 transition-colors">
                       {item.name}
@@ -71,7 +71,7 @@ export default function Footer() {
                 Portfolio
               </h4>
               <ul className="space-y-2.5 text-xs text-slate-400 font-medium">
-                {NAV_ITEMS.slice(3).map((item) => (
+                {NAV_ITEMS.slice(5).map((item) => (
                   <li key={item.name}>
                     <a href={item.href} className="hover:text-purple-400 transition-colors">
                       {item.name}

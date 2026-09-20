@@ -227,7 +227,7 @@ export default function ContactSection() {
                       placeholder="e.g. Alex Morgan"
                       value={formData.name}
                       onChange={handleChange}
-                      className="w-full px-4 py-3 rounded-xl glass-card text-sm text-white placeholder-slate-400 border border-slate-700/60 focus:outline-none focus:border-blue-500"
+                      className="w-full px-4 py-3 rounded-xl glass-card text-base sm:text-sm text-white placeholder-slate-400 border border-slate-700/60 focus:outline-none focus:border-blue-500"
                     />
                   </div>
 
@@ -243,7 +243,7 @@ export default function ContactSection() {
                       placeholder="e.g. alex@company.com"
                       value={formData.email}
                       onChange={handleChange}
-                      className="w-full px-4 py-3 rounded-xl glass-card text-sm text-white placeholder-slate-400 border border-slate-700/60 focus:outline-none focus:border-blue-500"
+                      className="w-full px-4 py-3 rounded-xl glass-card text-base sm:text-sm text-white placeholder-slate-400 border border-slate-700/60 focus:outline-none focus:border-blue-500"
                     />
                   </div>
                 </div>
@@ -260,7 +260,7 @@ export default function ContactSection() {
                       placeholder="e.g. +1 555 019 2831"
                       value={formData.phone}
                       onChange={handleChange}
-                      className="w-full px-4 py-3 rounded-xl glass-card text-sm text-white placeholder-slate-400 border border-slate-700/60 focus:outline-none focus:border-blue-500"
+                      className="w-full px-4 py-3 rounded-xl glass-card text-base sm:text-sm text-white placeholder-slate-400 border border-slate-700/60 focus:outline-none focus:border-blue-500"
                     />
                   </div>
 
@@ -275,7 +275,7 @@ export default function ContactSection() {
                       placeholder="e.g. Project Consultation"
                       value={formData.subject}
                       onChange={handleChange}
-                      className="w-full px-4 py-3 rounded-xl glass-card text-sm text-white placeholder-slate-400 border border-slate-700/60 focus:outline-none focus:border-blue-500"
+                      className="w-full px-4 py-3 rounded-xl glass-card text-base sm:text-sm text-white placeholder-slate-400 border border-slate-700/60 focus:outline-none focus:border-blue-500"
                     />
                   </div>
                 </div>
@@ -292,7 +292,7 @@ export default function ContactSection() {
                     placeholder="Tell me about your project scope, goals, or timeline..."
                     value={formData.message}
                     onChange={handleChange}
-                    className="w-full px-4 py-3 rounded-xl glass-card text-sm text-white placeholder-slate-400 border border-slate-700/60 focus:outline-none focus:border-blue-500 resize-none"
+                    className="w-full px-4 py-3 rounded-xl glass-card text-base sm:text-sm text-white placeholder-slate-400 border border-slate-700/60 focus:outline-none focus:border-blue-500 resize-none"
                   />
                 </div>
 

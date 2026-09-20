@@ -1,19 +1,23 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { NAV_ITEMS } from '@/lib/constants';
 import ThemeToggle from '@/components/ui/ThemeToggle';
-import { Menu, X, Code2, Sparkles } from 'lucide-react';
+import { Menu, X, Code2, Sparkles, ChevronDown, ShieldCheck } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+
+// Primary links shown directly on desktop navbar pill
+const PRIMARY_NAV_HREFS = ['#home', '#about', '#skills', '#projects', '#services', '#contact'];
 
 export default function Navbar() {
   const [activeSection, setActiveSection] = useState('home');
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [moreDropdownOpen, setMoreDropdownOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const handleScroll = () => {
-      // Header background opacity trigger
       setIsScrolled(window.scrollY > 20);
 
       // Scroll Spy for active section link
@@ -37,9 +41,21 @@ export default function Navbar() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  // Close dropdown on outside click
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setMoreDropdownOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
   const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
     e.preventDefault();
     setMobileMenuOpen(false);
+    setMoreDropdownOpen(false);
     const targetId = href.substring(1);
     const targetElement = document.getElementById(targetId);
     if (targetElement) {
@@ -47,12 +63,16 @@ export default function Navbar() {
     }
   };
 
+  const primaryItems = NAV_ITEMS.filter((item) => PRIMARY_NAV_HREFS.includes(item.href));
+  const secondaryItems = NAV_ITEMS.filter((item) => !PRIMARY_NAV_HREFS.includes(item.href));
+  const isSecondaryActive = secondaryItems.some((item) => activeSection === item.href.substring(1));
+
   return (
     <header
       className={`fixed top-0 left-0 right-0 z-40 transition-all duration-300 ${
         isScrolled
-          ? 'glass-nav py-3.5 shadow-xl shadow-slate-950/20'
-          : 'bg-transparent py-5'
+          ? 'glass-nav py-3 sm:py-3.5 shadow-xl shadow-slate-950/20'
+          : 'bg-transparent py-4 sm:py-5'
       }`}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -67,26 +87,26 @@ export default function Navbar() {
               <Code2 className="w-5 h-5" />
             </div>
             <div className="flex flex-col">
-              <span className="font-bold text-lg tracking-tight text-white flex items-center gap-1.5">
+              <span className="font-bold text-base sm:text-lg tracking-tight text-white flex items-center gap-1.5">
                 Krishna
                 <Sparkles className="w-3.5 h-3.5 text-purple-400 animate-pulse" />
               </span>
-              <span className="text-[10px] uppercase tracking-widest text-slate-400 font-medium">
-                Full Stack & AI
+              <span className="text-[9px] sm:text-[10px] uppercase tracking-widest text-slate-400 font-medium">
+                Full Stack &amp; AI
               </span>
             </div>
           </a>
 
           {/* Desktop Nav */}
-          <nav className="hidden lg:flex items-center space-x-1 xl:space-x-2 p-1.5 rounded-full glass-card border border-slate-700/40">
-            {NAV_ITEMS.map((item) => {
+          <nav className="hidden lg:flex items-center space-x-1 xl:space-x-1.5 p-1.5 rounded-full glass-card border border-slate-700/40">
+            {primaryItems.map((item) => {
               const isActive = activeSection === item.href.substring(1);
               return (
                 <a
                   key={item.name}
                   href={item.href}
                   onClick={(e) => handleNavClick(e, item.href)}
-                  className={`relative px-3.5 py-1.5 rounded-full text-xs font-medium transition-all duration-300 ${
+                  className={`relative px-3 py-1.5 rounded-full text-xs font-medium transition-all duration-200 ${
                     isActive
                       ? 'text-white'
                       : 'text-slate-400 hover:text-white hover:bg-slate-800/50'
@@ -103,10 +123,63 @@ export default function Navbar() {
                 </a>
               );
             })}
+
+            {/* "More" Dropdown Menu on Desktop */}
+            <div className="relative" ref={dropdownRef}>
+              <button
+                onClick={() => setMoreDropdownOpen(!moreDropdownOpen)}
+                className={`relative px-3 py-1.5 rounded-full text-xs font-medium transition-all duration-200 flex items-center gap-1 ${
+                  isSecondaryActive
+                    ? 'text-white bg-blue-600/30 border border-blue-500/40'
+                    : 'text-slate-400 hover:text-white hover:bg-slate-800/50'
+                }`}
+              >
+                <span>More</span>
+                <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${moreDropdownOpen ? 'rotate-180' : ''}`} />
+              </button>
+
+              <AnimatePresence>
+                {moreDropdownOpen && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 8, scale: 0.95 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: 8, scale: 0.95 }}
+                    transition={{ duration: 0.15 }}
+                    className="absolute right-0 mt-2 w-48 rounded-2xl glass-panel border border-slate-700/60 p-2 shadow-2xl backdrop-blur-xl z-50 space-y-0.5"
+                  >
+                    {secondaryItems.map((item) => {
+                      const isActive = activeSection === item.href.substring(1);
+                      return (
+                        <a
+                          key={item.name}
+                          href={item.href}
+                          onClick={(e) => handleNavClick(e, item.href)}
+                          className={`block px-3 py-2 rounded-xl text-xs font-medium transition-colors ${
+                            isActive
+                              ? 'bg-blue-600/20 text-blue-300 font-semibold'
+                              : 'text-slate-300 hover:bg-slate-800/60 hover:text-white'
+                          }`}
+                        >
+                          {item.name}
+                        </a>
+                      );
+                    })}
+                    <div className="pt-1 mt-1 border-t border-slate-800">
+                      <a
+                        href="/admin"
+                        className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold text-blue-400 hover:bg-blue-600/10 hover:text-blue-300 transition-colors"
+                      >
+                        <ShieldCheck className="w-3.5 h-3.5" /> Admin Portal
+                      </a>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
           </nav>
 
-          {/* Right Actions (Theme Toggle & Mobile Menu Trigger) */}
-          <div className="flex items-center space-x-3">
+          {/* Right Actions (Theme Toggle, Hire Me, Mobile Menu Trigger) */}
+          <div className="flex items-center space-x-2.5 sm:space-x-3">
             <ThemeToggle />
 
             <a
@@ -139,25 +212,34 @@ export default function Navbar() {
             transition={{ duration: 0.3, ease: 'easeInOut' }}
             className="lg:hidden glass-panel border-b border-slate-800 overflow-hidden"
           >
-            <div className="px-4 py-6 space-y-2 max-h-[80vh] overflow-y-auto">
-              {NAV_ITEMS.map((item) => {
-                const isActive = activeSection === item.href.substring(1);
-                return (
-                  <a
-                    key={item.name}
-                    href={item.href}
-                    onClick={(e) => handleNavClick(e, item.href)}
-                    className={`block px-4 py-3 rounded-xl text-sm font-medium transition-all ${
-                      isActive
-                        ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold shadow-md'
-                        : 'text-slate-300 hover:bg-slate-800/60 hover:text-white'
-                    }`}
-                  >
-                    {item.name}
-                  </a>
-                );
-              })}
-              <div className="pt-4 border-t border-slate-800/80">
+            <div className="px-4 py-6 space-y-1.5 max-h-[80vh] overflow-y-auto">
+              <div className="grid grid-cols-2 gap-1.5 pb-2">
+                {NAV_ITEMS.map((item) => {
+                  const isActive = activeSection === item.href.substring(1);
+                  return (
+                    <a
+                      key={item.name}
+                      href={item.href}
+                      onClick={(e) => handleNavClick(e, item.href)}
+                      className={`block px-3 py-2.5 rounded-xl text-xs sm:text-sm font-medium transition-all ${
+                        isActive
+                          ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold shadow-md'
+                          : 'text-slate-300 hover:bg-slate-800/60 hover:text-white glass-card'
+                      }`}
+                    >
+                      {item.name}
+                    </a>
+                  );
+                })}
+              </div>
+
+              <div className="pt-3 border-t border-slate-800/80 space-y-2">
+                <a
+                  href="/admin"
+                  className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl glass-card text-blue-400 font-semibold text-xs border border-blue-500/30 hover:bg-blue-600/10"
+                >
+                  <ShieldCheck className="w-4 h-4" /> Admin Portal
+                </a>
                 <a
                   href="#contact"
                   onClick={(e) => handleNavClick(e, '#contact')}
@@ -173,3 +255,4 @@ export default function Navbar() {
     </header>
   );
 }
+

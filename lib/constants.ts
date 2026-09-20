@@ -38,6 +38,9 @@ export const NAV_ITEMS: NavItem[] = [
   { name: 'About', href: '#about' },
   { name: 'Skills', href: '#skills' },
   { name: 'Projects', href: '#projects' },
+  { name: 'Services', href: '#services' },
+  { name: 'Education', href: '#education' },
+  { name: 'Certificates', href: '#certificates' },
   { name: 'Resume', href: '#resume' },
   { name: 'Contact', href: '#contact' },
 ];
@@ -52,7 +55,7 @@ export const HIGHLIGHT_STATS: HighlightStat[] = [
   },
   {
     label: 'Projects Completed',
-    value: 90,
+    value: 100,
     suffix: '+',
     description: 'Full stack web apps, AI models & production microservices',
     iconName: 'FolderCheck',
@@ -78,10 +81,8 @@ export const SKILLS_DATA: Skill[] = [
   { name: 'HTML5', category: 'Frontend', level: 95, iconName: 'FileCode' },
   { name: 'CSS3', category: 'Frontend', level: 92, iconName: 'Palette' },
   { name: 'JavaScript', category: 'Frontend', level: 95, iconName: 'Zap', popular: true },
-  { name: 'TypeScript', category: 'Frontend', level: 92, iconName: 'ShieldCheck', popular: true },
   { name: 'React', category: 'Frontend', level: 94, iconName: 'Atom', popular: true },
   { name: 'Next.js', category: 'Frontend', level: 92, iconName: 'Layers', popular: true },
-  { name: 'Tailwind CSS', category: 'Frontend', level: 95, iconName: 'Wind', popular: true },
 
   // Backend
   { name: 'Node.js', category: 'Backend', level: 90, iconName: 'Server', popular: true },
@@ -92,29 +93,19 @@ export const SKILLS_DATA: Skill[] = [
 
   // Database
   { name: 'MongoDB', category: 'Database', level: 88, iconName: 'Database', popular: true },
-  { name: 'PostgreSQL', category: 'Database', level: 86, iconName: 'HardDrive' },
   { name: 'MySQL', category: 'Database', level: 84, iconName: 'Table' },
   { name: 'Firebase', category: 'Database', level: 85, iconName: 'Flame' },
 
   // AI & ML
-  { name: 'TensorFlow', category: 'AI', level: 85, iconName: 'BrainCircuit', popular: true },
-  { name: 'PyTorch', category: 'AI', level: 82, iconName: 'Sparkles' },
-  { name: 'OpenCV', category: 'AI', level: 84, iconName: 'Eye' },
   { name: 'Machine Learning', category: 'AI', level: 88, iconName: 'Activity', popular: true },
-  { name: 'Deep Learning', category: 'AI', level: 85, iconName: 'Network' },
 
   // Cloud & DevOps
-  { name: 'AWS', category: 'Cloud', level: 84, iconName: 'Cloud', popular: true },
-  { name: 'Vercel', category: 'Cloud', level: 94, iconName: 'Triangle' },
-  { name: 'Netlify', category: 'Cloud', level: 90, iconName: 'Globe' },
   { name: 'Docker', category: 'Cloud', level: 82, iconName: 'Box', popular: true },
 
   // Tools
   { name: 'Git', category: 'Tools', level: 92, iconName: 'GitBranch' },
   { name: 'GitHub', category: 'Tools', level: 94, iconName: 'Github' },
   { name: 'VS Code', category: 'Tools', level: 96, iconName: 'Code2' },
-  { name: 'Postman', category: 'Tools', level: 90, iconName: 'Send' },
-  { name: 'Figma', category: 'Tools', level: 86, iconName: 'Figma' },
 ];
 
 export const PROJECTS_DATA: Project[] = [
@@ -537,19 +528,7 @@ export const PROJECTS_DATA: Project[] = [
     liveUrl: 'https://github.com/Krishna8208863439',
     featured: true,
   },
-  {
-    id: 'proj-22',
-    title: 'Autonomous Multi-Agent System',
-    subtitle: 'Collaborative AI multi-agent orchestration network',
-    description: 'Collaborative AI agent network where specialized planner, researcher, coder, and reviewer agents solve complex tasks autonomously.',
-    longDescription: 'Multi-agent orchestration framework coordinating autonomous specialized agents to deliver end-to-end task completion.',
-    category: 'AI',
-    technologies: ['Python', 'LangChain', 'CrewAI', 'FastAPI', 'Next.js'],
-    image: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=800&q=80',
-    githubUrl: 'https://github.com/Krishna8208863439',
-    liveUrl: 'https://github.com/Krishna8208863439',
-    featured: true,
-  },
+
   {
     id: 'proj-23',
     title: 'AI Subscription Leak Detector',
@@ -1229,19 +1208,7 @@ export const PROJECTS_DATA: Project[] = [
     liveUrl: 'https://github.com/Krishna8208863439',
     featured: true,
   },
-  {
-    id: 'proj-75',
-    title: 'Hotel Booking Engine',
-    subtitle: 'Filterable hotel search & booking portal',
-    description: 'Fast hotel reservation portal with filterable amenities, room photos, reviews, instant confirmation, and map views.',
-    longDescription: 'Hospitality booking engine with interactive map filtering, amenity checklists, and instant reservation vouchers.',
-    category: 'Web',
-    technologies: ['React', 'Next.js', 'Tailwind CSS', 'Node.js', 'MongoDB'],
-    image: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=800&q=80',
-    githubUrl: 'https://github.com/Krishna8208863439',
-    liveUrl: 'https://github.com/Krishna8208863439',
-    featured: true,
-  },
+
   {
     id: 'proj-76',
     title: 'Movie Ticket Booking System',
@@ -1869,27 +1836,6 @@ export const SERVICES_DATA: ServiceItem[] = [
     description: 'High-throughput, secure REST and GraphQL API endpoints engineered with Node.js, Express, FastAPI, and PostgreSQL/MongoDB.',
     iconName: 'Server',
     features: ['JWT/OAuth Authentication', 'Rate Limiting & Caching', 'Database Optimization', 'Swagger OpenAPI Documentation'],
-  },
-  {
-    id: 'srv-4',
-    title: 'UI/UX & Product Design',
-    description: 'Crafting modern, glassmorphic, interactive user interfaces with Stripe/Vercel design aesthetic, micro-animations, and full accessibility.',
-    iconName: 'Figma',
-    features: ['Responsive Mobile-First UI', 'Framer Motion & GSAP Animations', 'Figma Prototyping', 'Dark & Light Theme Systems'],
-  },
-  {
-    id: 'srv-5',
-    title: 'Cloud & DevOps Infrastructure',
-    description: 'Deploying apps with CI/CD automation on AWS, Vercel, Netlify, and Docker container clusters for zero-downtime scalability.',
-    iconName: 'Cloud',
-    features: ['Dockerization & Container Ops', 'Vercel / AWS Deployment', 'Automated GitHub Actions CI/CD', 'SSL, DNS & Domain Setup'],
-  },
-  {
-    id: 'srv-6',
-    title: 'Tech Consultation & Code Audit',
-    description: 'In-depth code reviews, performance bottleneck analysis, refactoring legacy codebases, and architectural guidance.',
-    iconName: 'CheckCircle2',
-    features: ['Core Web Vitals Optimization', 'Security Vulnerability Scan', 'TypeScript Migration', 'Architecture Recommendations'],
   },
 ];
 

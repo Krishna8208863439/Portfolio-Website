@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
-import { PERSONAL_INFO } from '@/lib/constants';
+import { PERSONAL_INFO, PROJECTS_DATA } from '@/lib/constants';
 import ResumeModal from '@/components/ui/ResumeModal';
 import {
   Mail,
@@ -22,7 +22,7 @@ export default function HeroSection() {
   const [isDeleting, setIsDeleting] = useState(false);
   const [resumeOpen, setResumeOpen] = useState(false);
   const [availableForHire, setAvailableForHire] = useState<boolean>(true);
-  const [projectCount, setProjectCount] = useState<number>(3);
+  const [projectCount, setProjectCount] = useState<number>(PROJECTS_DATA.length);
 
   // Fetch status badge and dynamic project count from DB
   useEffect(() => {
@@ -44,7 +44,7 @@ export default function HeroSection() {
           setProjectCount(list.length);
         }
       })
-      .catch(() => setProjectCount(3));
+      .catch(() => setProjectCount(PROJECTS_DATA.length));
   }, []);
 
   // Typing animation effect
@@ -210,24 +210,24 @@ export default function HeroSection() {
 
               {/* Floating Badge 1: Dynamic Status */}
               <motion.div
-                animate={{ y: [-8, 8, -8] }}
+                animate={{ y: [-6, 6, -6] }}
                 transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
-                className="absolute -top-4 -right-4 px-4 py-2 rounded-2xl glass-panel border border-blue-500/40 shadow-xl flex items-center space-x-2 text-xs font-semibold text-white"
+                className="absolute -top-2 right-0 sm:-top-4 sm:-right-4 px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl sm:rounded-2xl glass-panel border border-blue-500/40 shadow-xl flex items-center space-x-2 text-[11px] sm:text-xs font-semibold text-white whitespace-nowrap z-20"
               >
-                <div className={`w-2.5 h-2.5 rounded-full ${availableForHire ? 'bg-emerald-400 animate-ping' : 'bg-amber-400'}`} />
+                <div className={`w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full ${availableForHire ? 'bg-emerald-400 animate-ping' : 'bg-amber-400'}`} />
                 <span>{availableForHire ? 'Open to Opportunities' : 'Currently Employed'}</span>
               </motion.div>
 
               {/* Floating Badge 2: Computed Projects Count */}
               <motion.div
-                animate={{ y: [8, -8, 8] }}
+                animate={{ y: [6, -6, 6] }}
                 transition={{ duration: 4.5, repeat: Infinity, ease: 'easeInOut' }}
-                className="absolute -bottom-4 -left-4 px-4 py-2.5 rounded-2xl glass-panel border border-purple-500/40 shadow-xl flex items-center space-x-2.5 text-xs font-semibold text-white"
+                className="absolute -bottom-2 left-0 sm:-bottom-4 sm:-left-4 px-3 sm:px-4 py-1.5 sm:py-2.5 rounded-xl sm:rounded-2xl glass-panel border border-purple-500/40 shadow-xl flex items-center space-x-2 sm:space-x-2.5 text-[11px] sm:text-xs font-semibold text-white z-20"
               >
-                <Zap className="w-4 h-4 text-cyan-400" />
+                <Zap className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-cyan-400 shrink-0" />
                 <div>
-                  <span className="block text-[10px] text-slate-400">Live Projects</span>
-                  <span className="text-purple-300 font-bold">{projectCount}+ Projects Done</span>
+                  <span className="block text-[9px] sm:text-[10px] text-slate-400">Live Projects</span>
+                  <span className="text-purple-300 font-bold text-xs">{projectCount}+ Projects Done</span>
                 </div>
               </motion.div>
             </div>
