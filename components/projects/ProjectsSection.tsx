@@ -206,6 +206,17 @@ export default function ProjectsSection() {
             >
               <X className="w-5 h-5" />
             </button>
+            {selectedProject.image && (
+              <div className="relative h-48 sm:h-60 w-full rounded-2xl overflow-hidden mb-4 border border-slate-800 bg-slate-950">
+                <img
+                  src={selectedProject.image}
+                  alt={selectedProject.title}
+                  className="w-full h-full object-cover"
+                  referrerPolicy="no-referrer"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-transparent to-transparent opacity-60" />
+              </div>
+            )}
             <h3 className="text-xl sm:text-2xl font-bold pr-8">{selectedProject.title}</h3>
             <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
               {selectedProject.longDescription || selectedProject.description}
@@ -271,6 +282,12 @@ function ProjectCard({
 
   const [imgSrc, setImgSrc] = useState(project.image || FALLBACK_IMAGE);
 
+  useEffect(() => {
+    if (project.image) {
+      setImgSrc(project.image);
+    }
+  }, [project.image]);
+
   return (
     <motion.div
       layout
@@ -288,12 +305,13 @@ function ProjectCard({
             alt={project.title}
             fill
             unoptimized={imgSrc.startsWith('http')}
+            referrerPolicy="no-referrer"
             onError={() => setImgSrc(FALLBACK_IMAGE)}
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
             className="object-cover object-center group-hover:scale-105 transition-transform duration-500"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-80" />
-          <span className="absolute top-3 right-3 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-blue-600/40 border border-blue-400/40 text-blue-300 backdrop-blur-md">
+          <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-black/10 pointer-events-none" />
+          <span className="absolute top-3 right-3 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-blue-600/60 border border-blue-400/50 text-blue-200 backdrop-blur-md z-10">
             {project.category}
           </span>
         </div>
