@@ -132,7 +132,7 @@ export default function HeroSection() {
             <div className="pt-4 flex flex-wrap items-center justify-center lg:justify-start gap-4 w-full sm:w-auto">
               <a
                 href="/api/resume"
-                download="Final_Resume.pdf"
+                download="Krishna_Resume.pdf"
                 className="w-full sm:w-auto px-6 py-3.5 rounded-xl bg-gradient-to-r from-blue-600 via-purple-600 to-cyan-500 text-white font-semibold text-sm hover:shadow-lg hover:shadow-blue-500/30 transition-all duration-300 flex items-center justify-center gap-2 group"
               >
                 <FileText className="w-4 h-4 group-hover:scale-110 transition-transform" />

@@ -27,11 +27,11 @@ export default function ResumeSection() {
           <div className="mt-6 flex flex-wrap items-center justify-center gap-4">
             <a
               href="/api/resume"
-              download="Final_Resume.pdf"
+              download="Krishna_Resume.pdf"
               className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-semibold text-sm rounded-xl shadow-lg shadow-blue-500/20 transition-all hover:scale-105"
             >
               <Download className="w-4 h-4" />
-              Download PDF Resume
+              Download Krishna_Resume.pdf
             </a>
             <a
               href="/api/resume"

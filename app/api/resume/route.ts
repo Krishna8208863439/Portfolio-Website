@@ -4,8 +4,20 @@ import path from 'path';
 
 export async function GET() {
   try {
-    const filePath = path.join(process.cwd(), 'public', 'resume.pdf');
-    if (!fs.existsSync(filePath)) {
+    const candidates = [
+      path.join(process.cwd(), 'public', 'Krishna_Resume.pdf'),
+      path.join(process.cwd(), 'Krishna_Resume.pdf'),
+      path.join(process.cwd(), 'public', 'resume.pdf'),
+    ];
+    let filePath = '';
+    for (const p of candidates) {
+      if (fs.existsSync(p)) {
+        filePath = p;
+        break;
+      }
+    }
+
+    if (!filePath) {
       return NextResponse.json({ message: 'Resume file not found.' }, { status: 404 });
     }
 
@@ -15,7 +27,7 @@ export async function GET() {
       status: 200,
       headers: {
         'Content-Type': 'application/pdf',
-        'Content-Disposition': 'inline; filename="Final_Resume.pdf"',
+        'Content-Disposition': 'inline; filename="Krishna_Resume.pdf"',
         'Cache-Control': 'public, max-age=3600',
       },
     });
