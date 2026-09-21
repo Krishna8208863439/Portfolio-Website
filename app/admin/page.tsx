@@ -104,7 +104,10 @@ export default function AdminPage() {
       ]);
 
       if (statsRes.ok) setStats(await statsRes.json());
-      if (roleRes.ok) setRoleData(await roleRes.json());
+      if (roleRes.ok) {
+        const rData = await roleRes.json();
+        setRoleData(Array.isArray(rData) ? rData : (rData.distribution || []));
+      }
       if (projectsRes.ok) {
         const pData = await projectsRes.json();
         setProjects(Array.isArray(pData) ? pData : (pData.projects || []));

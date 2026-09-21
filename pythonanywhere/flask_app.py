@@ -26,23 +26,35 @@ from email.mime.multipart import MIMEMultipart
 from datetime import datetime, timezone
 from functools import wraps
 
-import pymysql
+try:
+    import pymysql
+    import pymysql.cursors
+    HAS_PYMYSQL = True
+except ImportError:
+    HAS_PYMYSQL = False
+
+import sqlite3
 import bcrypt
 import jwt as pyjwt
-from flask import Flask, request, jsonify, make_response
-from flask_cors import CORS
+from flask import Flask, request, jsonify, make_response, send_from_directory, send_file
+
+try:
+    from flask_cors import CORS
+    HAS_CORS = True
+except ImportError:
+    HAS_CORS = False
 
 # ─────────────────────────────────────────────
 # App Setup
 # ─────────────────────────────────────────────
 app = Flask(__name__)
 
-# Allow requests from your static frontend
-CORS(app, origins=[
-    "https://krishnaportfolio.pythonanywhere.com",
-    "http://localhost:3000",
-    "http://127.0.0.1:3000",
-], supports_credentials=True)
+if HAS_CORS:
+    CORS(app, origins=[
+        "https://krishnaportfolio.pythonanywhere.com",
+        "http://localhost:3000",
+        "http://127.0.0.1:3000",
+    ], supports_credentials=True)
 
 # ─────────────────────────────────────────────
 # Configuration (from environment variables)
@@ -57,31 +69,92 @@ SMTP_USER = os.environ.get('SMTP_USER', '')
 SMTP_PASS = os.environ.get('SMTP_PASS', '')
 CONTACT_RECEIVER_EMAIL = os.environ.get('CONTACT_RECEIVER_EMAIL', SMTP_USER)
 
-# PythonAnywhere MySQL config
+# Database config
 DB_HOST = os.environ.get('DB_HOST', 'KrishnaPortfolio.mysql.pythonanywhere-services.com')
 DB_USER = os.environ.get('DB_USER', 'KrishnaPortfolio')
 DB_PASS = os.environ.get('DB_PASS', '')
 DB_NAME = os.environ.get('DB_NAME', 'KrishnaPortfolio$portfolio')
-
+SQLITE_DB_PATH = os.environ.get('SQLITE_DB_PATH', '/home/KrishnaPortfolio/portfolio.db')
+if not os.path.exists(os.path.dirname(SQLITE_DB_PATH)) and not os.path.isabs(SQLITE_DB_PATH):
+    SQLITE_DB_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'portfolio.db')
 
 # ─────────────────────────────────────────────
-# Database Helper
+# Database Wrapper & Helper (MySQL + SQLite)
 # ─────────────────────────────────────────────
+class DBCursor:
+    def __init__(self, is_sqlite, cur):
+        self.is_sqlite = is_sqlite
+        self.cur = cur
+
+    def execute(self, sql, params=()):
+        if self.is_sqlite:
+            # Convert %s placeholders to ? for SQLite
+            sql = sql.replace('%s', '?')
+            sql = sql.replace('AUTO_INCREMENT', 'AUTOINCREMENT')
+            sql = sql.replace('INT AUTOINCREMENT', 'INTEGER AUTOINCREMENT')
+            sql = sql.replace('ENGINE=InnoDB DEFAULT CHARSET=utf8mb4', '')
+        return self.cur.execute(sql, params)
+
+    def fetchone(self):
+        row = self.cur.fetchone()
+        if row is None:
+            return None
+        return dict(row) if self.is_sqlite else row
+
+    def fetchall(self):
+        rows = self.cur.fetchall()
+        if self.is_sqlite:
+            return [dict(r) for r in rows]
+        return rows
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        try:
+            self.cur.close()
+        except Exception:
+            pass
+
+
+class DBWrapper:
+    def __init__(self, is_sqlite, conn):
+        self.is_sqlite = is_sqlite
+        self.conn = conn
+
+    def cursor(self):
+        return DBCursor(self.is_sqlite, self.conn.cursor())
+
+    def commit(self):
+        self.conn.commit()
+
+    def close(self):
+        self.conn.close()
+
+
 def get_db():
-    """Get a MySQL connection. Returns None if DB is unavailable."""
+    """Get DB connection: tries MySQL first if configured, falls back to SQLite."""
+    if HAS_PYMYSQL and DB_PASS:
+        try:
+            conn = pymysql.connect(
+                host=DB_HOST,
+                user=DB_USER,
+                password=DB_PASS,
+                database=DB_NAME,
+                charset='utf8mb4',
+                cursorclass=pymysql.cursors.DictCursor,
+                connect_timeout=3,
+            )
+            return DBWrapper(False, conn)
+        except Exception as e:
+            print(f"[DB] MySQL unavailable ({e}), using SQLite fallback.")
+
     try:
-        conn = pymysql.connect(
-            host=DB_HOST,
-            user=DB_USER,
-            password=DB_PASS,
-            database=DB_NAME,
-            charset='utf8mb4',
-            cursorclass=pymysql.cursors.DictCursor,
-            connect_timeout=5,
-        )
-        return conn
+        conn = sqlite3.connect(SQLITE_DB_PATH)
+        conn.row_factory = sqlite3.Row
+        return DBWrapper(True, conn)
     except Exception as e:
-        print(f"[DB] Connection failed: {e}")
+        print(f"[DB] SQLite connection failed: {e}")
         return None
 
 
@@ -94,25 +167,25 @@ def ensure_tables():
         with conn.cursor() as cur:
             cur.execute("""
                 CREATE TABLE IF NOT EXISTS contact_messages (
-                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
                     name VARCHAR(255) NOT NULL,
                     email VARCHAR(255) NOT NULL,
                     phone VARCHAR(50),
                     subject VARCHAR(500),
                     message TEXT NOT NULL,
                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+                );
             """)
             cur.execute("""
                 CREATE TABLE IF NOT EXISTS visitors (
-                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
                     name VARCHAR(255),
                     role VARCHAR(255),
                     status VARCHAR(50) DEFAULT 'identified',
                     ip_address VARCHAR(100),
                     user_agent TEXT,
                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+                );
             """)
         conn.commit()
     except Exception as e:
@@ -385,18 +458,19 @@ def admin_messages():
                 cur.execute("SELECT id, name, email, phone, subject, message, created_at FROM contact_messages ORDER BY created_at DESC")
                 rows = cur.fetchall()
             conn.close()
-            messages = [
-                {
+            messages = []
+            for r in rows:
+                c_at = r.get('created_at')
+                c_str = c_at.isoformat() if hasattr(c_at, 'isoformat') else (str(c_at) if c_at else '')
+                messages.append({
                     'id': str(r['id']),
                     'name': r['name'],
                     'email': r['email'],
                     'phone': r.get('phone'),
                     'subject': r.get('subject'),
                     'message': r['message'],
-                    'createdAt': r['created_at'].isoformat() if r['created_at'] else '',
-                }
-                for r in rows
-            ]
+                    'createdAt': c_str,
+                })
             return jsonify({'messages': messages}), 200
         except Exception as e:
             print(f"[DB] Messages fetch error: {e}")
@@ -474,7 +548,19 @@ def role_distribution():
     """Return visitor role distribution."""
     if request.method == 'OPTIONS':
         return '', 204
-    return jsonify({'distribution': []}), 200
+    try:
+        conn = get_db()
+        if not conn:
+            return jsonify([]), 200
+        with conn.cursor() as cur:
+            cur.execute("SELECT role, COUNT(*) as count FROM visitors WHERE role IS NOT NULL AND role != '' GROUP BY role ORDER BY count DESC")
+            rows = cur.fetchall()
+        conn.close()
+        distribution = [{'role': r['role'], 'count': r['count']} for r in rows]
+        return jsonify(distribution), 200
+    except Exception as e:
+        print(f"[DB] Role distribution error: {e}")
+        return jsonify([]), 200
 
 
 @app.route('/api/visitors', methods=['POST', 'OPTIONS'])
@@ -504,6 +590,76 @@ def log_visitor():
         print(f"[DB] Visitor log error: {e}")
 
     return jsonify({'success': True}), 200
+
+
+# ─────────────────────────────────────────────
+# Resume Endpoint
+# ─────────────────────────────────────────────
+@app.route('/api/resume', methods=['GET', 'OPTIONS'])
+def resume_endpoint():
+    """Serve resume PDF."""
+    if request.method == 'OPTIONS':
+        return '', 204
+
+    candidates = [
+        os.path.join(STATIC_DIR, 'Final_Resume.pdf'),
+        os.path.join(STATIC_DIR, 'resume.pdf'),
+        os.path.join(os.path.dirname(STATIC_DIR), 'Final_Resume (1).pdf'),
+        os.path.join(os.path.dirname(STATIC_DIR), 'public', 'Final_Resume.pdf'),
+        os.path.join(os.path.dirname(STATIC_DIR), 'public', 'resume.pdf'),
+    ]
+    for p in candidates:
+        if os.path.exists(p):
+            return send_file(p, mimetype='application/pdf', as_attachment=False, download_name='Final_Resume.pdf')
+    return jsonify({'message': 'Resume file not found.'}), 404
+
+
+# ─────────────────────────────────────────────
+# Static Frontend Serving (Next.js export)
+# ─────────────────────────────────────────────
+STATIC_DIR = os.environ.get('STATIC_DIR')
+if not STATIC_DIR:
+    candidates = [
+        '/home/KrishnaPortfolio/Portfolio-Website/out',
+        os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'out'),
+        os.path.join(os.path.dirname(os.path.abspath(__file__)), 'out'),
+    ]
+    for c in candidates:
+        if os.path.exists(c):
+            STATIC_DIR = c
+            break
+    if not STATIC_DIR:
+        STATIC_DIR = candidates[0]
+
+
+@app.route('/', defaults={'path': ''})
+@app.route('/<path:path>')
+def serve_frontend(path):
+    """Serve exported Next.js static files and fallback gracefully."""
+    # Never intercept API routes
+    if path.startswith('api/'):
+        return jsonify({'error': f'API endpoint /{path} not found'}), 404
+
+    target = os.path.join(STATIC_DIR, path)
+
+    # 1. Exact static file match (JS, CSS, images, pdf, favicon, etc.)
+    if path and os.path.isfile(target):
+        return send_from_directory(STATIC_DIR, path)
+
+    # 2. Directory with index.html (e.g. /admin -> /admin/index.html)
+    if os.path.isdir(target) and os.path.isfile(os.path.join(target, 'index.html')):
+        return send_from_directory(target, 'index.html')
+
+    # 3. Path + .html (e.g. /admin -> admin.html)
+    if os.path.isfile(target + '.html'):
+        return send_from_directory(STATIC_DIR, path + '.html')
+
+    # 4. Fallback to root index.html (SPA client routing)
+    root_index = os.path.join(STATIC_DIR, 'index.html')
+    if os.path.isfile(root_index):
+        return send_from_directory(STATIC_DIR, 'index.html')
+
+    return "Frontend build not found.", 404
 
 
 # ─────────────────────────────────────────────
