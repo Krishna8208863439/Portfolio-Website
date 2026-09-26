@@ -19,7 +19,13 @@ function verifyAdminToken(request: Request) {
   }
 }
 
+export const dynamic = 'force-static';
+
 export async function GET(request: Request) {
+  if (process.env.NEXT_EXPORT === 'true' || process.env.OUTPUT_EXPORT === 'true') {
+    return NextResponse.json({ messages: [] }, { status: 200 });
+  }
+
   if (!verifyAdminToken(request)) {
     return NextResponse.json({ message: 'Unauthorized access' }, { status: 401 });
   }

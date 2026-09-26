@@ -21,8 +21,8 @@ sys.path.insert(0, '/home/KrishnaPortfolio/Portfolio-Website/pythonanywhere')
 
 # ─── Set environment variables ───────────────────────────
 # IMPORTANT: Replace all placeholder values below!
-os.environ.setdefault('ADMIN_EMAIL', 'admin@portfolio.com')
-os.environ.setdefault('ADMIN_PASSWORD', 'admin123')
+os.environ['ADMIN_EMAIL'] = 'krishna@gmail.com'
+os.environ['ADMIN_PASSWORD'] = 'Sgi@5555'
 os.environ.setdefault('JWT_SECRET', 'super-secret-jwt-key-portfolio-2026')
 
 os.environ.setdefault('SMTP_HOST', 'smtp.gmail.com')

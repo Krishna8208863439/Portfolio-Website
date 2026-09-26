@@ -2,11 +2,11 @@ import { NextResponse } from 'next/server';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 
-const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'admin@portfolio.com';
-// Default password fallback: 'admin123'
+const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'krishna@gmail.com';
+// Default password fallback: 'Sgi@5555'
 const ADMIN_PASSWORD_HASH =
   process.env.ADMIN_PASSWORD_HASH ||
-  bcrypt.hashSync(process.env.ADMIN_PASSWORD || 'admin123', 10);
+  bcrypt.hashSync(process.env.ADMIN_PASSWORD || 'Sgi@5555', 10);
 const JWT_SECRET = process.env.JWT_SECRET || 'super-secret-jwt-key-portfolio-2026';
 
 export async function POST(request: Request) {
@@ -26,7 +26,7 @@ export async function POST(request: Request) {
 
     const isValidPassword =
       bcrypt.compareSync(password, ADMIN_PASSWORD_HASH) ||
-      password === (process.env.ADMIN_PASSWORD || 'admin123');
+      password === (process.env.ADMIN_PASSWORD || 'Sgi@5555');
 
     if (!isValidPassword) {
       return NextResponse.json({ message: 'Invalid admin credentials.' }, { status: 401 });

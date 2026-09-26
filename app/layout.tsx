@@ -84,7 +84,7 @@ export default function RootLayout({
     },
     sameAs: [
       'https://github.com/Krishna8208863439',
-      'https://linkedin.com/in/krishna-devadkar',
+      'https://www.linkedin.com/in/krishna-d-9489b632a',
       'https://x.com/krishna_dev',
     ],
     knowsAbout: [

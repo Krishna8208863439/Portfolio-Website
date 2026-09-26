@@ -86,7 +86,7 @@ cd ~/Portfolio-Website
 
 # Install and build (creates /out directory)
 npm install
-NEXT_PUBLIC_API_URL=https://krishnaportfolio.pythonanywhere.com npm run build
+NEXT_EXPORT=true NEXT_PUBLIC_API_URL=https://krishnaportfolio.pythonanywhere.com npm run build
 ```
 
 > This creates the `/out` folder with all static HTML/CSS/JS files.
@@ -183,7 +183,7 @@ Whenever you push changes from local, run on PythonAnywhere:
 ```bash
 cd ~/Portfolio-Website
 git pull origin main
-NEXT_PUBLIC_API_URL=https://krishnaportfolio.pythonanywhere.com npm run build
+NEXT_EXPORT=true NEXT_PUBLIC_API_URL=https://krishnaportfolio.pythonanywhere.com npm run build
 ```
 
 Then click **Reload** in the Web tab.

@@ -3,6 +3,8 @@ import { connectToDatabase } from '@/lib/mongodb';
 import { AdminConfig } from '@/lib/models';
 import { verifyAdminToken } from '@/lib/auth';
 
+export const dynamic = 'force-static';
+
 export async function GET() {
   try {
     const db = await connectToDatabase();

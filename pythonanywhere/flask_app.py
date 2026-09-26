@@ -60,8 +60,8 @@ if HAS_CORS:
 # Configuration (from environment variables)
 # ─────────────────────────────────────────────
 JWT_SECRET = os.environ.get('JWT_SECRET', 'super-secret-jwt-key-portfolio-2026')
-ADMIN_EMAIL = os.environ.get('ADMIN_EMAIL', 'admin@portfolio.com')
-ADMIN_PASSWORD = os.environ.get('ADMIN_PASSWORD', 'admin123')
+ADMIN_EMAIL = os.environ.get('ADMIN_EMAIL', 'krishna@gmail.com')
+ADMIN_PASSWORD = os.environ.get('ADMIN_PASSWORD', 'Sgi@5555')
 
 SMTP_HOST = os.environ.get('SMTP_HOST', 'smtp.gmail.com')
 SMTP_PORT = int(os.environ.get('SMTP_PORT', 587))
@@ -642,6 +642,46 @@ def role_distribution():
     except Exception as e:
         print(f"[DB] Role distribution error: {e}")
         return jsonify([]), 200
+
+
+@app.route('/api/admin/visitors', methods=['GET', 'OPTIONS'])
+@require_auth
+def admin_visitors():
+    """Return paginated list of visitors."""
+    if request.method == 'OPTIONS':
+        return '', 204
+    try:
+        page = int(request.args.get('page', 1))
+        limit = int(request.args.get('limit', 10))
+        offset = (page - 1) * limit
+        conn = get_db()
+        if not conn:
+            return jsonify({'visitors': [], 'total': 0, 'totalPages': 1}), 200
+        with conn.cursor() as cur:
+            cur.execute("SELECT COUNT(*) as total FROM visitors")
+            total_res = cur.fetchone()
+            total = total_res['total'] if total_res else 0
+            cur.execute("SELECT id, name, role, status, ip_address, created_at FROM visitors ORDER BY created_at DESC LIMIT %s OFFSET %s", (limit, offset))
+            rows = cur.fetchall()
+        conn.close()
+        visitors = []
+        for r in rows:
+            c_at = r.get('created_at')
+            c_str = c_at.isoformat() if hasattr(c_at, 'isoformat') else (str(c_at) if c_at else '')
+            visitors.append({
+                'id': str(r['id']),
+                'name': r['name'] or 'Anonymous',
+                'role': r['role'] or 'Visitor',
+                'status': r['status'] or 'identified',
+                'ipAddress': r.get('ip_address') or '—',
+                'createdAt': c_str,
+            })
+        import math
+        total_pages = max(1, math.ceil(total / limit)) if total > 0 else 1
+        return jsonify({'visitors': visitors, 'total': total, 'totalPages': total_pages}), 200
+    except Exception as e:
+        print(f"[DB] Visitors fetch error: {e}")
+        return jsonify({'visitors': [], 'total': 0, 'totalPages': 1}), 200
 
 
 @app.route('/api/visitors', methods=['POST', 'OPTIONS'])

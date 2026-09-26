@@ -253,7 +253,7 @@ export default function ProjectsSection() {
                 <FaGithub className="w-4 h-4" /> GitHub Repository
               </a>
               <a
-                href={selectedProject.linkedinUrl || 'https://linkedin.com/in/krishna-devadkar'}
+                href={selectedProject.linkedinUrl || 'https://www.linkedin.com/in/krishna-d-9489b632a'}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="px-4 py-2.5 bg-blue-700/80 hover:bg-blue-600 text-white font-semibold text-xs rounded-xl flex items-center justify-center gap-2 border border-blue-600/50"
@@ -277,7 +277,7 @@ function ProjectCard({
 }) {
   const projectTags = project.tags || project.technologies || [];
   const githubLink = project.githubUrl || 'https://github.com/Krishna8208863439';
-  const linkedinLink = project.linkedinUrl || 'https://linkedin.com/in/krishna-devadkar';
+  const linkedinLink = project.linkedinUrl || 'https://www.linkedin.com/in/krishna-d-9489b632a';
   const FALLBACK_IMAGE = 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=800&q=80';
 
   const [imgSrc, setImgSrc] = useState(project.image || FALLBACK_IMAGE);

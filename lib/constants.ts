@@ -26,7 +26,7 @@ export const PERSONAL_INFO = {
   email: 'krishnadevadkar@gmail.com',
   phone: '+91 82088 63439',
   github: 'https://github.com/Krishna8208863439',
-  linkedin: 'https://linkedin.com/in/krishna-devadkar',
+  linkedin: 'https://www.linkedin.com/in/krishna-d-9489b632a',
   instagram: 'https://instagram.com/krishna.dev',
   twitter: 'https://x.com/krishna_dev',
   workingHours: 'Mon - Sat: 9:00 AM - 8:00 PM IST',

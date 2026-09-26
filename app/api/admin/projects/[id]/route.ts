@@ -3,6 +3,16 @@ import { connectToDatabase } from '@/lib/mongodb';
 import { Project } from '@/lib/models';
 import { verifyAdminToken } from '@/lib/auth';
 
+export const dynamic = 'force-static';
+
+export async function generateStaticParams() {
+  return [{ id: '1' }];
+}
+
+export async function GET() {
+  return NextResponse.json({ message: 'Static placeholder' }, { status: 200 });
+}
+
 export async function PUT(
   request: Request,
   { params }: { params: Promise<{ id: string }> }

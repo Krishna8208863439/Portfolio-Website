@@ -99,7 +99,7 @@ Portfolio-Website/
 **Krishna Devadkar**
 - Portfolio: [krishnadevadkar.vercel.app](https://krishnadevadkar.vercel.app)
 - GitHub: [@krishna-devadkar](https://github.com/krishna-devadkar)
-- LinkedIn: [Krishna Devadkar](https://linkedin.com/in/krishna-devadkar)
+- LinkedIn: [Krishna Devadkar](https://www.linkedin.com/in/krishna-d-9489b632a)
 - Email: [krishna.devadkar.dev@gmail.com](mailto:krishna.devadkar.dev@gmail.com)
 
 ---

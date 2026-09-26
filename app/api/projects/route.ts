@@ -17,6 +17,8 @@ const INITIAL_PROJECTS = PROJECTS_DATA.map((p) => ({
   featured: p.featured ?? true,
 }));
 
+export const dynamic = 'force-static';
+
 export async function GET() {
   try {
     const db = await connectToDatabase();

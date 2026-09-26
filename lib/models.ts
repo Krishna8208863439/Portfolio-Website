@@ -49,7 +49,7 @@ const ProjectSchema = new Schema<IProject>(
     tags: [{ type: String }],
     liveUrl: { type: String, default: '#' },
     githubUrl: { type: String, default: '#' },
-    linkedinUrl: { type: String, default: 'https://linkedin.com/in/krishna-devadkar' },
+    linkedinUrl: { type: String, default: 'https://www.linkedin.com/in/krishna-d-9489b632a' },
     featured: { type: Boolean, default: false },
     createdAt: { type: Date, default: Date.now },
   },
