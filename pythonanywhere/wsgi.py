@@ -16,8 +16,11 @@ Or just point the WSGI file path directly to this file.
 import sys
 import os
 
-# Add the pythonanywhere folder to Python path
+# Add pythonanywhere folder to Python path (handles both upper/lowercase usernames)
+_home = os.path.expanduser('~')
+sys.path.insert(0, os.path.join(_home, 'Portfolio-Website', 'pythonanywhere'))
 sys.path.insert(0, '/home/KrishnaPortfolio/Portfolio-Website/pythonanywhere')
+sys.path.insert(0, '/home/krishnaportfolio/Portfolio-Website/pythonanywhere')
 
 # ─── Set environment variables ───────────────────────────
 # IMPORTANT: Replace all placeholder values below!

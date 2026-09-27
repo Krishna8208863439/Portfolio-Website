@@ -153,12 +153,17 @@ from flask_app import application
 
 ## STEP 6 — Configure Static Files
 
-In **PythonAnywhere → Web tab → Static files** section, add:
+In **PythonAnywhere → Web tab → Static files** section:
+
+1. **Delete any mapping for `/`** (root must be handled by Flask).
+2. Add these two static mappings:
 
 | URL | Directory |
 |-----|-----------|
-| `/` | `/home/KrishnaPortfolio/Portfolio-Website/out` |
-| `/api/` | *(leave empty — handled by Flask WSGI)* |
+| `/_next/` | `/home/KrishnaPortfolio/Portfolio-Website/out/_next` |
+| `/images/` | `/home/KrishnaPortfolio/Portfolio-Website/out/images` |
+
+*(Note: Replace `KrishnaPortfolio` with your exact username if it is in lowercase, e.g. `/home/krishnaportfolio/...`)*
 
 ---
 

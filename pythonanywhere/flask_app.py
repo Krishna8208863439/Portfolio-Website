@@ -892,12 +892,14 @@ def resume_endpoint():
 STATIC_DIR = os.environ.get('STATIC_DIR')
 if not STATIC_DIR:
     candidates = [
+        os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'out')),
+        os.path.expanduser('~/Portfolio-Website/out'),
         '/home/KrishnaPortfolio/Portfolio-Website/out',
-        os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'out'),
+        '/home/krishnaportfolio/Portfolio-Website/out',
         os.path.join(os.path.dirname(os.path.abspath(__file__)), 'out'),
     ]
     for c in candidates:
-        if os.path.exists(c):
+        if os.path.isdir(c) and os.path.isfile(os.path.join(c, 'index.html')):
             STATIC_DIR = c
             break
     if not STATIC_DIR:
@@ -926,7 +928,13 @@ def serve_frontend(path):
     if os.path.isfile(target + '.html'):
         return send_from_directory(STATIC_DIR, path + '.html')
 
-    # 4. Fallback to root index.html (SPA client routing)
+    # 4. If an asset is missing (e.g. .css, .js, .png, etc.), return 404 instead of index.html
+    # This prevents the browser from receiving HTML for CSS/JS requests (MIME-type errors)
+    ext = os.path.splitext(path)[1].lower()
+    if ext in ['.css', '.js', '.map', '.png', '.jpg', '.jpeg', '.svg', '.gif', '.ico', '.woff', '.woff2', '.ttf']:
+        return "Asset not found", 404
+
+    # 5. Fallback to root index.html (SPA client routing)
     root_index = os.path.join(STATIC_DIR, 'index.html')
     if os.path.isfile(root_index):
         return send_from_directory(STATIC_DIR, 'index.html')
