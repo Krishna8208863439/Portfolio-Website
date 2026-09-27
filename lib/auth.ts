@@ -31,7 +31,7 @@ export function verifyAdminToken(request: Request, fallbackToken?: string): bool
     if (!token) return false;
 
     const decoded = jwt.verify(token, JWT_SECRET) as { role?: string };
-    return decoded && decoded.role === 'admin';
+    return !!(decoded && decoded.role === 'admin');
   } catch {
     return false;
   }

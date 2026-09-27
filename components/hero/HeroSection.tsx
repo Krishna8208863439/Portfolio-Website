@@ -97,7 +97,7 @@ export default function HeroSection() {
             initial={{ opacity: 0, x: -50 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8, ease: 'easeOut' }}
-            className="lg:col-span-7 flex flex-col items-center lg:items-start text-center lg:text-left space-y-6"
+            className="lg:col-span-7 flex flex-col items-center lg:items-start text-center lg:text-left space-y-6 relative z-10"
           >
             {/* Greeting Badge with Dynamic Status */}
             <div className="inline-flex items-center space-x-2 px-3.5 py-1.5 rounded-full glass-card border border-blue-500/30 text-blue-400 text-xs sm:text-sm font-medium shadow-inner">
@@ -133,7 +133,7 @@ export default function HeroSection() {
               <a
                 href="/api/resume"
                 download="Krishna_Resume.pdf"
-                className="w-full sm:w-auto px-6 py-3.5 rounded-xl bg-gradient-to-r from-blue-600 via-purple-600 to-cyan-500 text-white font-semibold text-sm hover:shadow-lg hover:shadow-blue-500/30 transition-all duration-300 flex items-center justify-center gap-2 group"
+                className="w-full sm:w-auto px-6 py-3.5 rounded-xl bg-gradient-to-r from-blue-600 via-purple-600 to-cyan-500 text-white font-semibold text-sm hover:shadow-lg hover:shadow-blue-500/30 transition-all duration-300 flex items-center justify-center gap-2 group cursor-pointer"
               >
                 <FileText className="w-4 h-4 group-hover:scale-110 transition-transform" />
                 <span>Download Resume</span>
@@ -141,7 +141,7 @@ export default function HeroSection() {
 
               <a
                 href="#projects"
-                className="w-full sm:w-auto px-6 py-3.5 rounded-xl glass-card text-white hover:bg-slate-800/80 font-semibold text-sm border border-slate-700/60 transition-all duration-300 flex items-center justify-center gap-2 group"
+                className="w-full sm:w-auto px-6 py-3.5 rounded-xl glass-card text-white hover:bg-slate-800/80 font-semibold text-sm border border-slate-700/60 transition-all duration-300 flex items-center justify-center gap-2 group cursor-pointer"
               >
                 <FolderDot className="w-4 h-4 text-purple-400 group-hover:scale-110 transition-transform" />
                 <span>View Projects ({projectCount})</span>
@@ -149,7 +149,7 @@ export default function HeroSection() {
 
               <a
                 href="#contact"
-                className="w-full sm:w-auto px-6 py-3.5 rounded-xl glass-card text-slate-300 hover:text-white hover:bg-blue-600/20 font-semibold text-sm border border-blue-500/30 transition-all duration-300 flex items-center justify-center gap-2 group"
+                className="w-full sm:w-auto px-6 py-3.5 rounded-xl glass-card text-slate-300 hover:text-white hover:bg-blue-600/20 font-semibold text-sm border border-blue-500/30 transition-all duration-300 flex items-center justify-center gap-2 group cursor-pointer"
               >
                 <Send className="w-4 h-4 text-cyan-400 group-hover:translate-x-1 transition-transform" />
                 <span>Contact Me</span>
@@ -172,7 +172,7 @@ export default function HeroSection() {
                       target="_blank"
                       rel="noopener noreferrer"
                       aria-label={social.label}
-                      className="p-2.5 rounded-xl glass-card text-slate-400 hover:text-white hover:bg-blue-600/20 hover:border-blue-500/40 transition-all duration-300"
+                      className="p-2.5 rounded-xl glass-card text-slate-400 hover:text-white hover:bg-blue-600/20 hover:border-blue-500/40 transition-all duration-300 inline-flex items-center justify-center cursor-pointer"
                     >
                       <Icon className="w-5 h-5" />
                     </a>

@@ -572,6 +572,23 @@ def delete_admin_project(proj_id):
     return jsonify({'success': True, 'message': 'Project deleted successfully.'}), 200
 
 
+def format_iso_utc(c_at):
+    if not c_at:
+        return datetime.now(timezone.utc).isoformat()
+    if isinstance(c_at, datetime):
+        if c_at.tzinfo is None:
+            c_at = c_at.replace(tzinfo=timezone.utc)
+        return c_at.isoformat()
+    if isinstance(c_at, str):
+        clean_str = c_at.strip()
+        if ' ' in clean_str and 'T' not in clean_str:
+            return clean_str.replace(' ', 'T') + 'Z'
+        if not clean_str.endswith('Z') and '+' not in clean_str:
+            return clean_str + 'Z'
+        return clean_str
+    return str(c_at)
+
+
 @app.route('/api/contact', methods=['POST', 'OPTIONS'])
 def contact():
     """Handle contact form submission."""
@@ -593,14 +610,16 @@ def contact():
     if not re.match(r'^[^\s@]+@[^\s@]+\.[^\s@]+$', email):
         return jsonify({'message': 'Invalid email address format.'}), 400
 
-    # Save to MySQL
+    # Save to MySQL / SQLite with explicit UTC timestamp
+    now_utc = datetime.now(timezone.utc)
+    utc_str = now_utc.strftime('%Y-%m-%d %H:%M:%S')
     try:
         conn = get_db()
         if conn:
             with conn.cursor() as cur:
                 cur.execute(
-                    "INSERT INTO contact_messages (name, email, phone, subject, message) VALUES (%s, %s, %s, %s, %s)",
-                    (name, email, phone or None, subject or None, message)
+                    "INSERT INTO contact_messages (name, email, phone, subject, message, created_at) VALUES (%s, %s, %s, %s, %s, %s)",
+                    (name, email, phone or None, subject or None, message, utc_str)
                 )
             conn.commit()
             conn.close()
@@ -676,8 +695,6 @@ def admin_messages():
             conn.close()
             messages = []
             for r in rows:
-                c_at = r.get('created_at')
-                c_str = c_at.isoformat() if hasattr(c_at, 'isoformat') else (str(c_at) if c_at else '')
                 messages.append({
                     'id': str(r['id']),
                     'name': r['name'],
@@ -685,7 +702,7 @@ def admin_messages():
                     'phone': r.get('phone'),
                     'subject': r.get('subject'),
                     'message': r['message'],
-                    'createdAt': c_str,
+                    'createdAt': format_iso_utc(r.get('created_at')),
                 })
             return jsonify({'messages': messages}), 200
         except Exception as e:
@@ -801,15 +818,13 @@ def admin_visitors():
         conn.close()
         visitors = []
         for r in rows:
-            c_at = r.get('created_at')
-            c_str = c_at.isoformat() if hasattr(c_at, 'isoformat') else (str(c_at) if c_at else '')
             visitors.append({
                 'id': str(r['id']),
                 'name': r['name'] or 'Anonymous',
                 'role': r['role'] or 'Visitor',
                 'status': r['status'] or 'identified',
                 'ipAddress': r.get('ip_address') or '—',
-                'createdAt': c_str,
+                'createdAt': format_iso_utc(r.get('created_at')),
             })
         import math
         total_pages = max(1, math.ceil(total / limit)) if total > 0 else 1

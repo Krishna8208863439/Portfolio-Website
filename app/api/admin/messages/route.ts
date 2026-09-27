@@ -1,34 +1,10 @@
 import { NextResponse } from 'next/server';
-import jwt from 'jsonwebtoken';
 import { connectToDatabase } from '@/lib/mongodb';
 import { ContactMessage } from '@/lib/models';
 import { getContactMessages, deleteContactMessage } from '@/lib/contactStore';
+import { verifyAdminToken } from '@/lib/auth';
 
-function verifyAdminToken(request: Request) {
-  let token: string | null = null;
-  const authHeader = request.headers.get('Authorization') || request.headers.get('authorization');
-  if (authHeader && authHeader.startsWith('Bearer ')) {
-    token = authHeader.split(' ')[1];
-  }
-  if (!token) {
-    try {
-      const { searchParams } = new URL(request.url);
-      token = searchParams.get('token') || searchParams.get('admin_token');
-    } catch {}
-  }
-  if (!token) {
-    return false;
-  }
-  try {
-    const secret = process.env.JWT_SECRET || 'super-secret-jwt-key-portfolio-2026';
-    jwt.verify(token, secret);
-    return true;
-  } catch {
-    return false;
-  }
-}
-
-export const dynamic = 'force-static';
+export const revalidate = 60;
 
 export async function GET(request: Request) {
   if (process.env.NEXT_EXPORT === 'true' || process.env.OUTPUT_EXPORT === 'true') {

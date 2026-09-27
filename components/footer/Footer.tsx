@@ -41,7 +41,7 @@ export default function Footer() {
                     target="_blank"
                     rel="noopener noreferrer"
                     aria-label={social.label}
-                    className="p-2 rounded-lg glass-card text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+                    className="p-2 rounded-lg glass-card text-slate-400 hover:text-white hover:bg-slate-800 transition-colors inline-flex items-center justify-center cursor-pointer"
                   >
                     <IconComp className="w-4 h-4" />
                   </a>

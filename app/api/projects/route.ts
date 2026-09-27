@@ -16,8 +16,7 @@ const INITIAL_PROJECTS = PROJECTS_DATA.map((p) => ({
   liveUrl: p.liveUrl || 'https://github.com/Krishna8208863439',
   featured: p.featured ?? true,
 }));
-
-export const dynamic = 'force-static';
+export const revalidate = 60;
 
 export async function GET() {
   try {

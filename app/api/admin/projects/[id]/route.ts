@@ -2,9 +2,6 @@ import { NextResponse } from 'next/server';
 import { connectToDatabase } from '@/lib/mongodb';
 import { Project } from '@/lib/models';
 import { verifyAdminToken } from '@/lib/auth';
-
-export const dynamic = 'force-static';
-
 export async function generateStaticParams() {
   return [{ id: '1' }];
 }

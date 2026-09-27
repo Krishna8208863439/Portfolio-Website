@@ -170,7 +170,7 @@ export default function ContactSection() {
                         target="_blank"
                         rel="noopener noreferrer"
                         aria-label={social.label}
-                        className="p-3 rounded-xl glass-card text-slate-400 hover:text-white hover:bg-blue-600/20 hover:border-blue-500/40 transition-all"
+                        className="p-3 rounded-xl glass-card text-slate-400 hover:text-white hover:bg-blue-600/20 hover:border-blue-500/40 transition-all inline-flex items-center justify-center cursor-pointer"
                       >
                         <IconComp className="w-5 h-5" />
                       </a>

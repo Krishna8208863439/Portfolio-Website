@@ -193,7 +193,58 @@ export default function AdminPage() {
   const handleLogout = () => {
     localStorage.removeItem('admin_jwt_token');
     setToken('');
+    setEmail('');
+    setPassword('');
     setIsAuthenticated(false);
+  };
+
+  const formatTimestamp = (dateStr?: string) => {
+    if (!dateStr) return 'Recent';
+    try {
+      let parsedStr = dateStr;
+      if (typeof dateStr === 'string') {
+        const trimmed = dateStr.trim();
+        if (/^\d{4}-\d{2}-\d{2}\s\d{2}:\d{2}:\d{2}/.test(trimmed)) {
+          parsedStr = trimmed.replace(' ', 'T') + 'Z';
+        }
+      }
+      const d = new Date(parsedStr);
+      if (isNaN(d.getTime())) return dateStr;
+      const parts = new Intl.DateTimeFormat('en-IN', {
+        timeZone: 'Asia/Kolkata',
+        day: 'numeric',
+        month: 'short',
+        year: 'numeric',
+        hour: 'numeric',
+        minute: '2-digit',
+        hour12: true,
+      }).formatToParts(d);
+      const day = parts.find((p) => p.type === 'day')?.value || '';
+      const month = (parts.find((p) => p.type === 'month')?.value || '').slice(0, 3);
+      const year = parts.find((p) => p.type === 'year')?.value || '';
+      const hour = parts.find((p) => p.type === 'hour')?.value || '';
+      const minute = parts.find((p) => p.type === 'minute')?.value || '';
+      const dayPeriod = (parts.find((p) => p.type === 'dayPeriod')?.value || '').toUpperCase();
+      return `${day} ${month} ${year}, ${hour}:${minute} ${dayPeriod}`;
+    } catch {
+      return dateStr;
+    }
+  };
+
+  const handleReplyEmail = (m: ContactMessageItem) => {
+    if (!m.email || !m.email.includes('@')) {
+      alert('Sender email address is missing or invalid.');
+      return;
+    }
+    const recipient = m.email.trim();
+    const subject = m.subject ? `Re: ${m.subject.trim()}` : 'Re: Your Portfolio Inquiry';
+    const senderName = m.name ? m.name.trim() : 'there';
+    const body = `Hi ${senderName},\n\nThank you for contacting me. I have received your message and will get back to you shortly.`;
+
+    const mailtoUrl = `mailto:${encodeURIComponent(recipient)}?subject=${encodeURIComponent(
+      subject
+    )}&body=${encodeURIComponent(body)}`;
+    window.location.href = mailtoUrl;
   };
 
   const handleToggleStatus = async () => {
@@ -320,7 +371,7 @@ export default function AdminPage() {
             </div>
           )}
 
-          <form onSubmit={handleLogin} className="space-y-4">
+          <form onSubmit={handleLogin} className="space-y-4" autoComplete="off">
             <div>
               <label className="block text-xs font-semibold uppercase text-slate-300 mb-1">
                 Admin Email
@@ -329,7 +380,8 @@ export default function AdminPage() {
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="krishna@gmail.com"
+                placeholder="Enter admin email"
+                autoComplete="off"
                 required
                 className="w-full px-4 py-2.5 bg-slate-800 border border-slate-700 focus:border-blue-500 rounded-xl text-sm text-white focus:outline-none"
               />
@@ -342,14 +394,15 @@ export default function AdminPage() {
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="••••••••"
+                placeholder="Enter admin password"
+                autoComplete="new-password"
                 required
                 className="w-full px-4 py-2.5 bg-slate-800 border border-slate-700 focus:border-blue-500 rounded-xl text-sm text-white focus:outline-none"
               />
             </div>
             <button
               type="submit"
-              className="w-full py-3 bg-blue-600 hover:bg-blue-500 text-white font-semibold text-sm rounded-xl shadow-lg shadow-blue-500/20 transition-all"
+              className="w-full py-3 bg-blue-600 hover:bg-blue-500 text-white font-semibold text-sm rounded-xl shadow-lg shadow-blue-500/20 transition-all cursor-pointer"
             >
               Sign In to Admin Panel
             </button>
@@ -678,7 +731,7 @@ export default function AdminPage() {
                         </div>
 
                         <span className="text-[11px] text-slate-400 font-mono bg-slate-900 px-2.5 py-1 rounded border border-slate-800">
-                          {m.createdAt ? new Date(m.createdAt).toLocaleString() : 'Recent'}
+                          {formatTimestamp(m.createdAt)}
                         </span>
                       </div>
 
@@ -688,14 +741,13 @@ export default function AdminPage() {
 
                       <div className="flex flex-wrap items-center justify-between gap-2 pt-1">
                         <div className="flex items-center gap-2">
-                          <a
-                            href={`mailto:${m.email}?subject=${encodeURIComponent(
-                              m.subject ? `Re: ${m.subject}` : 'Re: Portfolio Contact Inquiry'
-                            )}`}
-                            className="px-3.5 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold flex items-center gap-1.5 shadow-md shadow-blue-500/20 transition-colors"
+                          <button
+                            type="button"
+                            onClick={() => handleReplyEmail(m)}
+                            className="px-3.5 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold flex items-center gap-1.5 shadow-md shadow-blue-500/20 transition-colors cursor-pointer"
                           >
                             <Reply className="w-3.5 h-3.5" /> Reply via Email
-                          </a>
+                          </button>
 
                           {cleanPhone && (
                             <a
@@ -771,7 +823,7 @@ export default function AdminPage() {
                         </td>
                         <td className="p-3 font-mono text-slate-400">{v.ipAddress}</td>
                         <td className="p-3 text-slate-400">
-                          {v.createdAt ? new Date(v.createdAt).toLocaleString() : '—'}
+                          {v.createdAt ? formatTimestamp(v.createdAt) : '—'}
                         </td>
                       </tr>
                     ))
