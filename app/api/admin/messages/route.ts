@@ -5,11 +5,20 @@ import { ContactMessage } from '@/lib/models';
 import { getContactMessages, deleteContactMessage } from '@/lib/contactStore';
 
 function verifyAdminToken(request: Request) {
-  const authHeader = request.headers.get('Authorization');
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+  let token: string | null = null;
+  const authHeader = request.headers.get('Authorization') || request.headers.get('authorization');
+  if (authHeader && authHeader.startsWith('Bearer ')) {
+    token = authHeader.split(' ')[1];
+  }
+  if (!token) {
+    try {
+      const { searchParams } = new URL(request.url);
+      token = searchParams.get('token') || searchParams.get('admin_token');
+    } catch {}
+  }
+  if (!token) {
     return false;
   }
-  const token = authHeader.split(' ')[1];
   try {
     const secret = process.env.JWT_SECRET || 'super-secret-jwt-key-portfolio-2026';
     jwt.verify(token, secret);

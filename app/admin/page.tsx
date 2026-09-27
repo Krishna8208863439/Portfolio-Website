@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { ShieldCheck, LogOut, Users, UserCheck, UserX, FolderGit2, RefreshCw, Plus, Trash2, ToggleLeft, ToggleRight, Mail, Reply, Phone, MessageCircle, BarChart3 } from 'lucide-react';
+import { ShieldCheck, LogOut, Users, UserCheck, UserX, FolderGit2, RefreshCw, Plus, Trash2, ToggleLeft, ToggleRight, Mail, Reply, Phone, MessageCircle, BarChart3, CheckCircle2, AlertCircle, Loader2 } from 'lucide-react';
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, Cell } from 'recharts';
 
 interface AdminStats {
@@ -80,6 +80,8 @@ export default function AdminPage() {
   const [newTags, setNewTags] = useState('React, Next.js, Node.js');
   const [newLiveUrl, setNewLiveUrl] = useState('#');
   const [newGithubUrl, setNewGithubUrl] = useState('#');
+  const [projectSubmitting, setProjectSubmitting] = useState(false);
+  const [projectMessage, setProjectMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
   // Check saved token on mount
   useEffect(() => {
@@ -107,6 +109,14 @@ export default function AdminPage() {
         fetch(`${API_URL}/api/admin/messages`, { headers }),
         fetch(`${API_URL}/api/admin/visitors?page=${page}&limit=10`, { headers }).catch(() => null),
       ]);
+
+      if (statsRes.status === 401 || messagesRes.status === 401) {
+        localStorage.removeItem('admin_jwt_token');
+        setToken('');
+        setIsAuthenticated(false);
+        setLoginError('Admin session expired. Please sign in again.');
+        return;
+      }
 
       if (statsRes.ok) setStats(await statsRes.json());
       if (roleRes.ok) {
@@ -206,6 +216,18 @@ export default function AdminPage() {
 
   const handleAddProject = async (e: React.FormEvent) => {
     e.preventDefault();
+    setProjectMessage(null);
+
+    if (!newTitle.trim()) {
+      setProjectMessage({ type: 'error', text: 'Please enter a project title.' });
+      return;
+    }
+    if (!newDesc.trim()) {
+      setProjectMessage({ type: 'error', text: 'Please enter a project description.' });
+      return;
+    }
+
+    setProjectSubmitting(true);
     const API_URL = process.env.NEXT_PUBLIC_API_URL || '';
     try {
       const res = await fetch(`${API_URL}/api/projects`, {
@@ -215,33 +237,62 @@ export default function AdminPage() {
           Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
-          title: newTitle,
-          description: newDesc,
-          category: newCategory,
-          image: newImage,
-          tags: newTags.split(',').map((t) => t.trim()),
-          liveUrl: newLiveUrl,
-          githubUrl: newGithubUrl,
+          title: newTitle.trim(),
+          description: newDesc.trim(),
+          category: newCategory.trim() || 'Full Stack',
+          image: newImage.trim() || 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=1000&q=80',
+          tags: newTags ? newTags.split(',').map((t) => t.trim()).filter(Boolean) : ['React', 'Next.js'],
+          liveUrl: newLiveUrl.trim() || '#',
+          githubUrl: newGithubUrl.trim() || '#',
+          token,
         }),
       });
 
-      if (res.ok) {
-        setNewTitle('');
-        setNewDesc('');
-        fetchDashboardData();
+      const data = await res.json().catch(() => ({}));
+
+      if (res.status === 401) {
+        setProjectMessage({ type: 'error', text: 'Session expired. Please log in again.' });
+        localStorage.removeItem('admin_jwt_token');
+        setToken('');
+        setIsAuthenticated(false);
+        setLoginError('Admin session expired. Please sign in again.');
+        return;
       }
-    } catch (err) {
+
+      if (!res.ok) {
+        setProjectMessage({ type: 'error', text: data.message || `Failed to add project (${res.status})` });
+        return;
+      }
+
+      setProjectMessage({ type: 'success', text: `Project "${newTitle.trim()}" added successfully!` });
+      setNewTitle('');
+      setNewDesc('');
+      if (data.project) {
+        setProjects((prev) => [data.project, ...prev]);
+        setStats((prev) => prev ? { ...prev, totalProjects: prev.totalProjects + 1 } : null);
+      }
+      fetchDashboardData();
+    } catch (err: unknown) {
       console.error('Project creation failed:', err);
+      setProjectMessage({ type: 'error', text: 'Network or server error while adding project.' });
+    } finally {
+      setProjectSubmitting(false);
     }
   };
 
   const handleDeleteProject = async (id: string) => {
+    if (!id) return;
     if (!confirm('Are you sure you want to delete this project?')) return;
+    const API_URL = process.env.NEXT_PUBLIC_API_URL || '';
     try {
-      await fetch(`/api/admin/projects/${id}`, {
+      const res = await fetch(`${API_URL}/api/admin/projects/${id}?token=${encodeURIComponent(token)}`, {
         method: 'DELETE',
         headers: { Authorization: `Bearer ${token}` },
       });
+      if (res.ok) {
+        setProjects((prev) => prev.filter((p) => (p._id || p.id) !== id));
+        setStats((prev) => prev ? { ...prev, totalProjects: Math.max(0, prev.totalProjects - 1) } : null);
+      }
       fetchDashboardData();
     } catch (err) {
       console.error('Delete project failed:', err);
@@ -854,12 +905,38 @@ export default function AdminPage() {
                   className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-xs text-white"
                 />
               </div>
+              {projectMessage && (
+                <div
+                  className={`md:col-span-2 p-3 rounded-xl text-xs flex items-center gap-2 ${
+                    projectMessage.type === 'success'
+                      ? 'bg-emerald-500/10 border border-emerald-500/30 text-emerald-400'
+                      : 'bg-rose-500/10 border border-rose-500/30 text-rose-400'
+                  }`}
+                >
+                  {projectMessage.type === 'success' ? (
+                    <CheckCircle2 className="w-4 h-4 shrink-0" />
+                  ) : (
+                    <AlertCircle className="w-4 h-4 shrink-0" />
+                  )}
+                  <span>{projectMessage.text}</span>
+                </div>
+              )}
+
               <div className="md:col-span-2 flex justify-end">
                 <button
                   type="submit"
-                  className="flex items-center gap-2 px-5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white font-semibold text-xs rounded-xl shadow-lg shadow-blue-500/20"
+                  disabled={projectSubmitting}
+                  className="flex items-center gap-2 px-5 py-2.5 bg-blue-600 hover:bg-blue-500 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold text-xs rounded-xl shadow-lg shadow-blue-500/20 transition-all cursor-pointer"
                 >
-                  <Plus className="w-4 h-4" /> Add Project
+                  {projectSubmitting ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" /> Adding Project...
+                    </>
+                  ) : (
+                    <>
+                      <Plus className="w-4 h-4" /> Add Project
+                    </>
+                  )}
                 </button>
               </div>
             </form>

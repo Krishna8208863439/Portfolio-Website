@@ -2,10 +2,23 @@ import jwt from 'jsonwebtoken';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'super-secret-jwt-key-portfolio-2026';
 
-export function verifyAdminToken(request: Request): boolean {
+export function verifyAdminToken(request: Request, fallbackToken?: string): boolean {
   try {
-    const authHeader = request.headers.get('authorization');
-    let token = authHeader?.startsWith('Bearer ') ? authHeader.substring(7) : null;
+    let token = fallbackToken;
+
+    if (!token) {
+      const authHeader = request.headers.get('authorization') || request.headers.get('Authorization');
+      token = authHeader?.startsWith('Bearer ') ? authHeader.substring(7) : null;
+    }
+
+    if (!token) {
+      try {
+        const { searchParams } = new URL(request.url);
+        token = searchParams.get('token') || searchParams.get('admin_token') || null;
+      } catch {
+        // ignore url parsing error
+      }
+    }
 
     if (!token) {
       const cookieHeader = request.headers.get('cookie') || '';

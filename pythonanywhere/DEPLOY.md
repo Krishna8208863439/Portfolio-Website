@@ -46,6 +46,21 @@ CREATE TABLE IF NOT EXISTS visitors (
     user_agent TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS custom_projects (
+    id VARCHAR(100) PRIMARY KEY,
+    title VARCHAR(255) NOT NULL,
+    subtitle VARCHAR(255) DEFAULT '',
+    description TEXT NOT NULL,
+    long_description TEXT,
+    category VARCHAR(100) DEFAULT 'Full Stack',
+    image TEXT NOT NULL,
+    tags TEXT,
+    live_url VARCHAR(500) DEFAULT '#',
+    github_url VARCHAR(500) DEFAULT '#',
+    featured TINYINT(1) DEFAULT 0,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 ```
 
 ---
@@ -115,8 +130,8 @@ import os
 sys.path.insert(0, '/home/KrishnaPortfolio/Portfolio-Website/pythonanywhere')
 
 # ─── Your credentials — EDIT THESE ───────────────
-os.environ['ADMIN_EMAIL'] = 'admin@portfolio.com'
-os.environ['ADMIN_PASSWORD'] = 'admin123'
+os.environ['ADMIN_EMAIL'] = 'krishna@gmail.com'
+os.environ['ADMIN_PASSWORD'] = 'Sgi@5555'
 os.environ['JWT_SECRET'] = 'super-secret-jwt-key-portfolio-2026'
 
 os.environ['SMTP_HOST'] = 'smtp.gmail.com'

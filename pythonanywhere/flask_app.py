@@ -48,6 +48,7 @@ except ImportError:
 # App Setup
 # ─────────────────────────────────────────────
 app = Flask(__name__)
+application = app
 
 if HAS_CORS:
     CORS(app, origins=[
@@ -184,6 +185,22 @@ def ensure_tables():
                     status VARCHAR(50) DEFAULT 'identified',
                     ip_address VARCHAR(100),
                     user_agent TEXT,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                );
+            """)
+            cur.execute("""
+                CREATE TABLE IF NOT EXISTS custom_projects (
+                    id VARCHAR(100) PRIMARY KEY,
+                    title VARCHAR(255) NOT NULL,
+                    subtitle VARCHAR(255) DEFAULT '',
+                    description TEXT NOT NULL,
+                    long_description TEXT,
+                    category VARCHAR(100) DEFAULT 'Full Stack',
+                    image TEXT NOT NULL,
+                    tags TEXT,
+                    live_url VARCHAR(500) DEFAULT '#',
+                    github_url VARCHAR(500) DEFAULT '#',
+                    featured INTEGER DEFAULT 0,
                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                 );
             """)
@@ -429,12 +446,130 @@ def status():
     })
 
 
-@app.route('/api/projects', methods=['GET', 'OPTIONS'])
-def get_projects():
-    """Return all portfolio projects."""
+@app.route('/api/projects', methods=['GET', 'POST', 'OPTIONS'])
+def projects_endpoint():
+    """Return all portfolio projects or add a new project."""
     if request.method == 'OPTIONS':
         return '', 204
-    return jsonify({'projects': PROJECTS, 'total': len(PROJECTS)})
+
+    if request.method == 'POST':
+        if not verify_admin_token():
+            return jsonify({'message': 'Unauthorized access.'}), 401
+
+        data = request.get_json(silent=True) or {}
+        title = (data.get('title') or '').strip()
+        description = (data.get('description') or '').strip()
+        image = (data.get('image') or '').strip()
+
+        if not title or not description or not image:
+            return jsonify({'message': 'Title, description, and image URL are required.'}), 400
+
+        category = (data.get('category') or 'Full Stack').strip()
+        tags_raw = data.get('tags')
+        if isinstance(tags_raw, list):
+            tags_list = tags_raw
+        elif isinstance(tags_raw, str):
+            tags_list = [t.strip() for t in tags_raw.split(',') if t.strip()]
+        else:
+            tags_list = ['React', 'Next.js']
+
+        live_url = (data.get('liveUrl') or '#').strip()
+        github_url = (data.get('githubUrl') or '#').strip()
+        featured = 1 if data.get('featured') else 0
+        proj_id = f"proj-{int(time.time()*1000)}"
+
+        new_project = {
+            'id': proj_id,
+            '_id': proj_id,
+            'title': title,
+            'subtitle': data.get('subtitle') or '',
+            'description': description,
+            'longDescription': data.get('longDescription') or description,
+            'category': category,
+            'image': image,
+            'tags': tags_list,
+            'technologies': tags_list,
+            'liveUrl': live_url,
+            'githubUrl': github_url,
+            'featured': bool(featured),
+        }
+
+        conn = get_db()
+        if conn:
+            try:
+                with conn.cursor() as cur:
+                    cur.execute("""
+                        INSERT INTO custom_projects (id, title, subtitle, description, long_description, category, image, tags, live_url, github_url, featured)
+                        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                    """, (
+                        proj_id, title, new_project['subtitle'], description,
+                        new_project['longDescription'], category, image,
+                        json.dumps(tags_list), live_url, github_url, featured
+                    ))
+                conn.commit()
+            except Exception as e:
+                print(f"[DB] Insert custom project error: {e}")
+            finally:
+                conn.close()
+
+        return jsonify({'success': True, 'project': new_project}), 201
+
+    # GET: return custom projects prepended to default projects
+    custom = []
+    conn = get_db()
+    if conn:
+        try:
+            with conn.cursor() as cur:
+                cur.execute("SELECT id, title, subtitle, description, long_description, category, image, tags, live_url, github_url, featured FROM custom_projects ORDER BY created_at DESC")
+                rows = cur.fetchall()
+                for r in rows:
+                    t_val = r.get('tags')
+                    try:
+                        t_list = json.loads(t_val) if t_val else []
+                    except Exception:
+                        t_list = [t.strip() for t in str(t_val).split(',') if t.strip()]
+                    custom.append({
+                        'id': r['id'],
+                        '_id': r['id'],
+                        'title': r['title'],
+                        'subtitle': r.get('subtitle') or '',
+                        'description': r['description'],
+                        'longDescription': r.get('long_description') or r['description'],
+                        'category': r.get('category') or 'Full Stack',
+                        'image': r['image'],
+                        'tags': t_list,
+                        'technologies': t_list,
+                        'liveUrl': r.get('live_url') or '#',
+                        'githubUrl': r.get('github_url') or '#',
+                        'featured': bool(r.get('featured')),
+                    })
+        except Exception as e:
+            print(f"[DB] Fetch custom projects error: {e}")
+        finally:
+            conn.close()
+
+    all_projs = custom + PROJECTS
+    return jsonify(all_projs)
+
+
+@app.route('/api/admin/projects/<proj_id>', methods=['DELETE', 'OPTIONS'])
+def delete_admin_project(proj_id):
+    """Delete a custom project by ID."""
+    if request.method == 'OPTIONS':
+        return '', 204
+    if not verify_admin_token():
+        return jsonify({'message': 'Unauthorized access.'}), 401
+    conn = get_db()
+    if conn:
+        try:
+            with conn.cursor() as cur:
+                cur.execute("DELETE FROM custom_projects WHERE id = %s", (proj_id,))
+            conn.commit()
+        except Exception as e:
+            print(f"[DB] Delete custom project error: {e}")
+        finally:
+            conn.close()
+    return jsonify({'success': True, 'message': 'Project deleted successfully.'}), 200
 
 
 @app.route('/api/contact', methods=['POST', 'OPTIONS'])

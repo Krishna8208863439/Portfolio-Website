@@ -10,22 +10,22 @@ export async function generateStaticParams() {
 }
 
 export async function GET() {
-  return NextResponse.json({ message: 'Static placeholder' }, { status: 200 });
+  return NextResponse.json({ message: 'Project admin route' }, { status: 200 });
 }
 
 export async function PUT(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  if (!verifyAdminToken(request)) {
-    return NextResponse.json({ message: 'Unauthorized access.' }, { status: 401 });
-  }
-
   try {
     const { id } = await params;
-    const body = await request.json();
-    await connectToDatabase();
+    const body = await request.json().catch(() => ({}));
+    const token = body?.token || body?.adminToken;
+    if (!verifyAdminToken(request, token)) {
+      return NextResponse.json({ message: 'Unauthorized access.' }, { status: 401 });
+    }
 
+    await connectToDatabase();
     const updatedProject = await Project.findByIdAndUpdate(id, body, { new: true });
     if (!updatedProject) {
       return NextResponse.json({ message: 'Project not found' }, { status: 404 });
@@ -42,12 +42,17 @@ export async function DELETE(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  if (!verifyAdminToken(request)) {
-    return NextResponse.json({ message: 'Unauthorized access.' }, { status: 401 });
-  }
-
   try {
     const { id } = await params;
+    let queryToken: string | undefined;
+    try {
+      const { searchParams } = new URL(request.url);
+      queryToken = searchParams.get('token') || searchParams.get('admin_token') || undefined;
+    } catch {}
+
+    if (!verifyAdminToken(request, queryToken)) {
+      return NextResponse.json({ message: 'Unauthorized access.' }, { status: 401 });
+    }
     await connectToDatabase();
 
     const deletedProject = await Project.findByIdAndDelete(id);

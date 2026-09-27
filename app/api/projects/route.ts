@@ -28,9 +28,8 @@ export async function GET() {
 
     let projects = await Project.find().sort({ createdAt: -1 }).lean();
 
-    // Auto-seed or update if database has incomplete project list
-    if (!projects || projects.length < INITIAL_PROJECTS.length) {
-      await Project.deleteMany({});
+    // Auto-seed if database is empty
+    if (!projects || projects.length === 0) {
       await Project.insertMany(INITIAL_PROJECTS);
       projects = await Project.find().sort({ createdAt: -1 }).lean();
     }
@@ -43,12 +42,13 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
-  if (!verifyAdminToken(request)) {
-    return NextResponse.json({ message: 'Unauthorized access.' }, { status: 401 });
-  }
-
   try {
-    const body = await request.json();
+    const body = await request.json().catch(() => ({}));
+    const token = body?.token || body?.adminToken;
+    if (!verifyAdminToken(request, token)) {
+      return NextResponse.json({ message: 'Unauthorized access.' }, { status: 401 });
+    }
+
     const { title, subtitle, description, longDescription, category, image, tags, liveUrl, githubUrl, featured } = body;
 
     if (!title || !description || !image) {
