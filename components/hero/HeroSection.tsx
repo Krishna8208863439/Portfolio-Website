@@ -198,11 +198,12 @@ export default function HeroSection() {
               <div className="relative w-full h-full rounded-full p-2.5 glass-panel overflow-hidden border-2 border-blue-500/40 shadow-2xl shadow-blue-500/20">
                 <div className="relative w-full h-full rounded-full overflow-hidden bg-slate-900">
                   <Image
-                    src="/images/user_profile.png"
+                    src="/images/krishna_photo.jpg?v=2"
                     alt={PERSONAL_INFO.name}
                     fill
                     sizes="(max-width: 768px) 256px, 384px"
                     priority
+                    unoptimized
                     className="object-cover object-top scale-105 hover:scale-110 transition-transform duration-700"
                   />
                 </div>

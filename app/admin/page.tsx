@@ -372,16 +372,24 @@ export default function AdminPage() {
           )}
 
           <form onSubmit={handleLogin} className="space-y-4" autoComplete="off">
+            {/* Fake inputs to prevent browser autofill */}
+            <input type="text" style={{ display: 'none' }} aria-hidden="true" />
+            <input type="password" style={{ display: 'none' }} aria-hidden="true" />
+
             <div>
               <label className="block text-xs font-semibold uppercase text-slate-300 mb-1">
                 Admin Email
               </label>
               <input
                 type="email"
+                name="admin_login_email_no_autofill"
+                id="admin_email_input"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="Enter admin email"
-                autoComplete="off"
+                autoComplete="new-off"
+                readOnly
+                onFocus={(e) => e.target.removeAttribute('readonly')}
                 required
                 className="w-full px-4 py-2.5 bg-slate-800 border border-slate-700 focus:border-blue-500 rounded-xl text-sm text-white focus:outline-none"
               />
@@ -392,10 +400,14 @@ export default function AdminPage() {
               </label>
               <input
                 type="password"
+                name="admin_login_pass_no_autofill"
+                id="admin_password_input"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Enter admin password"
                 autoComplete="new-password"
+                readOnly
+                onFocus={(e) => e.target.removeAttribute('readonly')}
                 required
                 className="w-full px-4 py-2.5 bg-slate-800 border border-slate-700 focus:border-blue-500 rounded-xl text-sm text-white focus:outline-none"
               />
