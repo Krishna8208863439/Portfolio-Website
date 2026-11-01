@@ -15,9 +15,31 @@ Or just point the WSGI file path directly to this file.
 
 import sys
 import os
+import zipfile
+
+# Auto-extract out.zip if newer than static out directory
+_home = os.path.expanduser('~')
+for _root in [os.path.join(_home, 'Portfolio-Website'), '/home/KrishnaPortfolio/Portfolio-Website', '/home/krishnaportfolio/Portfolio-Website']:
+    _zip = os.path.join(_root, 'out.zip')
+    _out = os.path.join(_root, 'out')
+    if os.path.exists(_zip):
+        try:
+            _marker = os.path.join(_out, '.last_extracted_mtime')
+            _current_mtime = str(os.path.getmtime(_zip))
+            _last_mtime = ''
+            if os.path.exists(_marker):
+                with open(_marker, 'r') as _f:
+                    _last_mtime = _f.read().strip()
+            if _current_mtime != _last_mtime or not os.path.exists(os.path.join(_out, 'index.html')):
+                os.makedirs(_out, exist_ok=True)
+                with zipfile.ZipFile(_zip, 'r') as _zf:
+                    _zf.extractall(_out)
+                with open(_marker, 'w') as _f:
+                    _f.write(_current_mtime)
+        except Exception as _e:
+            print(f"[WSGI] out.zip extraction error: {_e}")
 
 # Add pythonanywhere folder to Python path (handles both upper/lowercase usernames)
-_home = os.path.expanduser('~')
 sys.path.insert(0, os.path.join(_home, 'Portfolio-Website', 'pythonanywhere'))
 sys.path.insert(0, '/home/KrishnaPortfolio/Portfolio-Website/pythonanywhere')
 sys.path.insert(0, '/home/krishnaportfolio/Portfolio-Website/pythonanywhere')
